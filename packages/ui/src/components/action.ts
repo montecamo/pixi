@@ -12,6 +12,7 @@ export function makeAction(
 
 export function renderAction(
   ctx: CanvasRenderingContext2D,
+
   [fromX, fromY, toX, toY]: Action,
   { color, size }: { color: string; size: number }
 ): void {

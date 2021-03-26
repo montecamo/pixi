@@ -9,7 +9,6 @@ import { toRefs, watch, defineComponent } from "vue";
 import Sketch from "sketch-js";
 import { makeAction, renderAction } from "./action";
 import type { Actions } from "./action";
-import throttle from "lodash-es/throttle";
 
 export default defineComponent({
   props: ["brushSize", "brushColor", "actions"],
