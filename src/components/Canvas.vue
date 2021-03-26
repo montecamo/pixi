@@ -3,14 +3,17 @@
 </template>
 
 <script>
+import { toRefs, watch } from "vue";
 import Sketch from "sketch-js";
+import { getPixels, setPixels } from "./canvas.ts";
 
 export default {
-  props: ["brushSize", "brushColor"],
-  created() {
-    var self = this;
+  props: ["brushSize", "brushColor", "pixels"],
+  emits: ["pixels:update"],
+  setup(props) {
+    const { brushSize, brushColor, pixels } = toRefs(props);
 
-    Sketch.create({
+    const ctx = Sketch.create({
       container: document.getElementById("container"),
       autoclear: false,
       retina: "auto",
@@ -35,15 +38,21 @@ export default {
 
           this.lineCap = "round";
           this.lineJoin = "round";
-          this.fillStyle = this.strokeStyle = self.brushColor;
-          this.lineWidth = self.brushSize;
+          this.fillStyle = this.strokeStyle = brushColor.value;
+          this.lineWidth = brushSize.value;
 
           this.beginPath();
           this.moveTo(touch.ox, touch.oy);
           this.lineTo(touch.x, touch.y);
           this.stroke();
         }
+
+        this.emit$("pixels:update", getPixels(this, this.width, this.height));
       },
+    });
+
+    watch(pixels, (newPixels) => {
+      setPixels(ctx, newPixels, ctx.width, ctx.height);
     });
   },
 };

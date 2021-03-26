@@ -1,5 +1,5 @@
 <template>
-  <Canvas :brushSize="brushSize" :brushColor="brushColor" />
+  <Canvas :brushSize="brushSize" :brushColor="brushColor" :pixels="pixels" />
   <BrushSize v-model:brush-size="brushSize" />
   <BrushColor v-model:brush-color="brushColor" />
 </template>
@@ -17,7 +17,7 @@ export default {
     BrushColor,
   },
   data() {
-    return { brushSize: 2, brushColor: "#000" };
+    return { brushSize: 2, brushColor: "#000", pixels: [] };
   },
 };
 </script>
