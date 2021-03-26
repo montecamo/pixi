@@ -12,8 +12,9 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+export default defineComponent({
   emits: ["update:brushColor"],
   props: {
     brushColor: String,
@@ -22,11 +23,11 @@ export default {
     return { colors: ["#E3EB64", "#A7EBCA", "#FFFFFF", "#D8EBA7", "#868E80"] };
   },
   methods: {
-    changeBrushColor(color) {
+    changeBrushColor(color: string) {
       this.$emit("update:brushColor", color);
     },
   },
-};
+});
 </script>
 
 <style scoped>

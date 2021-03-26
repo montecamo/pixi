@@ -15,8 +15,9 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+export default defineComponent({
   emits: ["update:brushSize"],
   props: {
     brushSize: Number,
@@ -25,11 +26,11 @@ export default {
     return { radiuses: [8, 16, 24, 32, 40] };
   },
   methods: {
-    changeBrushSize(size) {
+    changeBrushSize(size: number) {
       this.$emit("update:brushSize", size);
     },
   },
-};
+});
 </script>
 
 <style scoped>

@@ -2,16 +2,26 @@
   <div id="container"></div>
 </template>
 
-<script>
-import { toRefs, watch } from "vue";
-import Sketch from "sketch-js";
-import { getPixels, setPixels } from "./canvas.ts";
+<script lang="ts">
+import { toRefs, watch, defineComponent } from "vue";
 
-export default {
-  props: ["brushSize", "brushColor", "pixels"],
-  emits: ["pixels:update"],
-  setup(props) {
-    const { brushSize, brushColor, pixels } = toRefs(props);
+// @ts-ignore
+import Sketch from "sketch-js";
+import { makeAction, renderAction } from "./action";
+import type { Actions } from "./action";
+import throttle from "lodash-es/throttle";
+
+export default defineComponent({
+  props: ["brushSize", "brushColor", "actions"],
+  emits: ["update:actions"],
+  setup(props, { emit }) {
+    const { brushSize, brushColor, actions } = toRefs(props);
+
+    const update = (nextActions: Actions) => {
+      emit("update:actions", actions.value.concat(nextActions));
+    };
+
+    watch(brushSize, console.warn);
 
     const ctx = Sketch.create({
       container: document.getElementById("container"),
@@ -33,8 +43,8 @@ export default {
       // scalability. If you only need to handle the mouse / desktop browsers,
       // use the 0th touch element and you get wider device support for free.
       touchmove: function () {
-        for (var i = this.touches.length - 1, touch; i >= 0; i--) {
-          touch = this.touches[i];
+        for (let i = this.touches.length - 1; i >= 0; i--) {
+          const touch = this.touches[i];
 
           this.lineCap = "round";
           this.lineJoin = "round";
@@ -47,15 +57,21 @@ export default {
           this.stroke();
         }
 
-        this.emit$("pixels:update", getPixels(this, this.width, this.height));
+        update(
+          this.touches.map((touch: any) =>
+            makeAction(touch.ox, touch.oy, touch.x, touch.y)
+          )
+        );
       },
     });
 
-    watch(pixels, (newPixels) => {
-      setPixels(ctx, newPixels, ctx.width, ctx.height);
-    });
+    // watch<Actions>(actions, (acts) => {
+    // acts.forEach((a) =>
+    // renderAction(ctx, a, { color: brushColor.value, size: brushSize.value })
+    // );
+    // });
   },
-};
+});
 </script>
 
 <style scoped></style>
