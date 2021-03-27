@@ -62,16 +62,21 @@ export default defineComponent({
 
         update(
           this.touches.map((touch: any) =>
-            makeAction(touch.ox, touch.oy, touch.x, touch.y)
+            makeAction(
+              touch.ox,
+              touch.oy,
+              touch.x,
+              touch.y,
+              brushColor.value,
+              brushSize.value
+            )
           )
         );
       },
     });
 
     socket.on("fibers", (acts: Actions) => {
-      acts.forEach((a) =>
-        renderAction(ctx, a, { color: brushColor.value, size: brushSize.value })
-      );
+      acts.forEach((a) => renderAction(ctx, a));
     });
   },
 });
