@@ -1,0 +1,13 @@
+{
+  "editor.formatOnSave": true,
+  "eslint.workingDirectories": [
+    {
+			"directory": "packages/ui",
+			"changeProcessCWD": true
+		} ,
+    {
+			"directory": "packages/server",
+			"changeProcessCWD": true
+		} 
+  ]
+}
