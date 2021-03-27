@@ -9,15 +9,19 @@ import { toRefs, watch, defineComponent } from "vue";
 import Sketch from "sketch-js";
 import { makeAction, renderAction } from "./action";
 import type { Actions } from "./action";
+import io from "socket.io-client";
 
 export default defineComponent({
   props: ["brushSize", "brushColor", "actions"],
   emits: ["update:actions"],
   setup(props, { emit }) {
+    const socket = io("ws://localhost:3001");
+
     const { brushSize, brushColor, actions } = toRefs(props);
 
     const update = (nextActions: Actions) => {
-      emit("update:actions", actions.value.concat(nextActions));
+      socket.emit("fibers", nextActions);
+      // emit("update:actions", actions.value.concat(nextActions));
     };
 
     watch(brushSize, console.warn);
@@ -64,11 +68,11 @@ export default defineComponent({
       },
     });
 
-    // watch<Actions>(actions, (acts) => {
-    // acts.forEach((a) =>
-    // renderAction(ctx, a, { color: brushColor.value, size: brushSize.value })
-    // );
-    // });
+    socket.on("fibers", (acts: Actions) => {
+      acts.forEach((a) =>
+        renderAction(ctx, a, { color: brushColor.value, size: brushSize.value })
+      );
+    });
   },
 });
 </script>

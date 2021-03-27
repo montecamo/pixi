@@ -6,11 +6,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "@nestjs/mongoose": "^7.2.4",
-    "@nestjs/platform-socket.io": "^7.6.15",
-    "@nestjs/websockets": "^7.6.15",
-    "lerna": "^4.0.0",
-    "mongoose": "^5.12.2"
+    "lerna": "^4.0.0"
   },
   "devDependencies": {},
   "scripts": {
