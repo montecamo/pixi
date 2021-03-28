@@ -74,6 +74,8 @@ export default defineComponent({
         );
       },
     });
+    // @ts-ignore
+    window.ctx = ctx;
 
     socket.on("fibers", (acts: Actions) => {
       acts.forEach((a) => renderAction(ctx, a));

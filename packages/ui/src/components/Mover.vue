@@ -3,16 +3,14 @@
     <div
       :style="{ width: `${containerWidth}px`, height: `${containerHeight}px` }"
       class="container"
-      @mousedown="down$"
-      @mousemove="move$"
-      @wheel.prevent="handleWheel"
+      ref="container"
     >
       <div
         :style="{
           left: `${pos.left - 1}px`,
           top: `${pos.top - 1}px`,
-          width: `${innerWidth}px`,
-          height: `${innerHeight}px`,
+          width: `${pos.width}px`,
+          height: `${pos.height}px`,
         }"
         class="inner"
       ></div>
@@ -24,15 +22,15 @@
 const SIZE_RATIO = 5;
 
 import { ref, toRefs, watch, computed, defineComponent } from "vue";
-import { concat, of, fromEvent, Subject } from "rxjs";
-import { switchMap, takeUntil, map, filter } from "rxjs/operators";
+import { concat, of, fromEvent, Subject, Observable } from "rxjs";
+import { switchMap, takeUntil, map, filter, tap } from "rxjs/operators";
 
-const cut = (start: number, end: number, value: number) => {
-  if (value < start) return start;
-  if (value > end) return end;
-
-  return value;
-};
+import {
+  makeMouseOffset$,
+  makeMouseZoom$,
+  makeOffsetController$,
+} from "../utils/offset";
+import { useAsObservable, useAsRef } from "../hooks";
 
 function stream<T>(subject: Subject<T>): (e: T) => void {
   return (e) => {
@@ -44,67 +42,45 @@ export default defineComponent({
   props: ["position", "zoom", "canvasWidth", "canvasHeight"],
   emits: ["update:position", "update:zoom"],
   setup(props, { emit }) {
+    const count = ref(0);
+    count.value = 123;
+
     const { position, zoom, canvasWidth, canvasHeight } = toRefs(props);
+    const container = ref<HTMLElement | null>();
 
     const containerWidth = computed(() => canvasWidth.value / SIZE_RATIO);
     const containerHeight = computed(() => canvasHeight.value / SIZE_RATIO);
 
-    const innerWidth = computed(
-      () => (containerWidth.value * zoom.value) / 100
+    const containerWidth$ = useAsObservable<number>(containerWidth);
+    const containerHeight$ = useAsObservable<number>(containerHeight);
+    const container$ = useAsObservable<HTMLElement | null | undefined>(
+      container
+    ).pipe(
+      filter((el) => el instanceof HTMLElement),
+      map((el) => el as HTMLElement)
     );
-    const innerHeight = computed(
-      () => (containerHeight.value * zoom.value) / 100
+
+    const zoom$ = makeMouseZoom$(container$);
+    const offset$ = makeMouseOffset$(container$);
+    const position$ = makeOffsetController$(
+      offset$,
+      containerWidth$,
+      containerHeight$,
+      zoom$
     );
 
-    const pos = computed(() => ({
-      left: cut(
-        0,
-        containerWidth.value - innerWidth.value,
-        position.value.left
-      ),
-      top: cut(
-        0,
-        containerHeight.value - innerHeight.value,
-        position.value.top
-      ),
-    }));
-
-    const down$ = new Subject<MouseEvent>();
-    const up$ = fromEvent<MouseEvent>(document, "mouseup");
-    const move$ = new Subject<MouseEvent>();
-    const handleWheel = (e: WheelEvent) => {
-      emit("update:zoom", cut(0, 100, zoom.value + e.deltaY));
-    };
-
-    down$
-      .pipe(
-        switchMap((e) => {
-          return concat(of(e), move$).pipe(
-            takeUntil(up$),
-            map(({ offsetX, offsetY }) => [
-              offsetX - innerWidth.value / 2,
-              offsetY - innerHeight.value / 2,
-            ]),
-            map(([offsetX, offsetY]) => [
-              cut(0, containerWidth.value - innerWidth.value, offsetX),
-              cut(0, containerHeight.value - innerHeight.value, offsetY),
-            ])
-          );
-        })
-      )
-      .subscribe(([left, top]) => {
-        emit("update:position", { left, top });
-      });
+    const pos = useAsRef(position$, {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0,
+    });
 
     return {
-      containerWidth,
-      containerHeight,
-      innerWidth,
-      innerHeight,
-      down$: stream(down$),
-      move$: stream(move$),
-      handleWheel,
       pos,
+      containerHeight,
+      containerWidth,
+      container,
     };
   },
 });
