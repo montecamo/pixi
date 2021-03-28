@@ -22,7 +22,15 @@
 const SIZE_RATIO = 5;
 
 import { ref, toRefs, watch, computed, defineComponent } from "vue";
-import { concat, of, fromEvent, Subject, Observable } from "rxjs";
+import {
+  concat,
+  of,
+  fromEvent,
+  Subject,
+  Observable,
+  BehaviorSubject,
+  combineLatest,
+} from "rxjs";
 import { switchMap, takeUntil, map, filter, tap } from "rxjs/operators";
 
 import {
@@ -62,10 +70,13 @@ export default defineComponent({
 
     const zoom$ = makeMouseZoom$(container$);
     const offset$ = makeMouseOffset$(container$);
+    const ratio$ = new BehaviorSubject(0.5);
     const position$ = makeOffsetController$(
       offset$,
-      containerWidth$,
-      containerHeight$,
+      combineLatest([containerWidth$, containerHeight$]).pipe(
+        map(([width, height]) => ({ width, height }))
+      ),
+      ratio$,
       zoom$
     );
 

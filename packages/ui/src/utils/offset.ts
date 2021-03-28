@@ -9,29 +9,21 @@ import {
 } from "rxjs/operators";
 
 import { cut } from "./cut";
+import { fitInRect } from "./fitInRect";
 
-const INITIAL_ZOOM = 50;
+const INITIAL_ZOOM = 20;
 const INITIAL_OFFSET = 0;
 const MIN_ZOOM = 10;
 const MAX_ZOOM = 100;
+const DELTA_SPEED = 0.5;
 
-function applyPercent$(
-  value$: Observable<number>,
-  percent$: Observable<number>
-): Observable<number> {
-  return combineLatest([value$, percent$]).pipe(
-    map(([value, percent]) => (value * percent) / 100)
-  );
-}
-
-function limitOffset$(
-  side$: Observable<number>,
-  innerSide$: Observable<number>,
-  position$: Observable<number>
-) {
-  return combineLatest([side$, innerSide$, position$]).pipe(
-    map(([side, innerSide, position]) => {
-      return cut(0, side - innerSide, position);
+function fitInRect$(
+  rect$: Observable<{ width: number; height: number }>,
+  fitRect$: Observable<{ width: number; height: number }>
+): Observable<{ width: number; height: number }> {
+  return combineLatest([rect$, fitRect$]).pipe(
+    map(([rect, fitRect]) => {
+      return fitInRect(rect, fitRect);
     })
   );
 }
@@ -54,32 +46,49 @@ function stopPropagation<T extends Event>(event: T) {
 
 export function makeOffsetController$(
   offset$: Observable<{ left: number; top: number }>,
-  width$: Observable<number>,
-  height$: Observable<number>,
+  dimensions$: Observable<{ width: number; height: number }>,
+  ratio$: Observable<number>,
   zoom$: Observable<number>
 ): Observable<{ left: number; top: number; width: number; height: number }> {
-  const innerWidth$ = applyPercent$(width$, zoom$);
-  const innerHeight$ = applyPercent$(height$, zoom$);
+  const innerDimensions$ = fitInRect$(
+    combineLatest([dimensions$, ratio$, zoom$]).pipe(
+      map(([{ width }, ratio, zoom]) => {
+        const innerWidth = (width * zoom) / 100;
+        const innerHeight = innerWidth * ratio;
 
-  const left$ = combineLatest([offset$, innerWidth$]).pipe(
-    map(([{ left }, width]) => left - width / 2)
-  );
-  const top$ = combineLatest([offset$, innerHeight$]).pipe(
-    map(([{ top }, height]) => top - height / 2)
+        return { width: innerWidth, height: innerHeight };
+      })
+    ),
+    dimensions$
   );
 
-  return combineLatest([
-    limitOffset$(width$, innerWidth$, left$),
-    limitOffset$(height$, innerHeight$, top$),
-    innerWidth$,
-    innerHeight$,
+  const normalizedOffset$ = combineLatest([offset$, innerDimensions$]).pipe(
+    map(([{ left, top }, { width, height }]) => {
+      return { left: left - width / 2, top: top - height / 2 };
+    })
+  );
+
+  const fittedOffset$ = combineLatest([
+    dimensions$,
+    innerDimensions$,
+    normalizedOffset$,
   ]).pipe(
-    map(([left, top, width, height]) => ({
-      left,
-      top,
-      width,
-      height,
-    }))
+    map(
+      ([
+        { width, height },
+        { width: innerWidth, height: innerHeight },
+        { left, top },
+      ]) => {
+        return {
+          left: cut(0, width - innerWidth)(left),
+          top: cut(0, height - innerHeight)(top),
+        };
+      }
+    )
+  );
+
+  return combineLatest([fittedOffset$, innerDimensions$]).pipe(
+    map(([offset, dimensions]) => ({ ...offset, ...dimensions }))
   );
 }
 
@@ -109,7 +118,7 @@ export function makeMouseZoom$(
   return wheel$.pipe(
     tap(stopPropagation),
     scan(
-      (acc, curr) => cut(MIN_ZOOM, MAX_ZOOM, acc + curr.deltaY),
+      (acc, curr) => cut(MIN_ZOOM, MAX_ZOOM)(acc + curr.deltaY * DELTA_SPEED),
       INITIAL_ZOOM
     ),
     startWith(INITIAL_ZOOM)
