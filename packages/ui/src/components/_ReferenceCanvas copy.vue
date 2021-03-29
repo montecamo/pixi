@@ -26,6 +26,7 @@ import {
   concat,
   of,
   fromEvent,
+  merge,
   Subject,
   Observable,
   BehaviorSubject,
@@ -47,13 +48,16 @@ function stream<T>(subject: Subject<T>): (e: T) => void {
 }
 
 export default defineComponent({
-  props: ["position", "zoom", "canvasWidth", "canvasHeight"],
-  emits: ["update:position", "update:zoom"],
+  props: [
+    "holeOffset",
+    "holeDimensions",
+    "canvasWidth",
+    "canvasHeight",
+    "scale",
+  ],
+  emits: ["update:hole", "update:zoom"],
   setup(props, { emit }) {
-    const count = ref(0);
-    count.value = 123;
-
-    const { position, zoom, canvasWidth, canvasHeight } = toRefs(props);
+    const { canvasWidth, canvasHeight } = toRefs(props);
     const container = ref<HTMLElement | null>();
 
     const containerWidth = computed(() => canvasWidth.value / SIZE_RATIO);
@@ -69,10 +73,11 @@ export default defineComponent({
     );
 
     const zoom$ = makeMouseZoom$(container$);
-    const offset$ = makeMouseOffset$(container$);
+    const mouseOffset$ = makeMouseOffset$(container$);
+
     const ratio$ = new BehaviorSubject(0.5);
     const position$ = makeOffsetController$(
-      offset$,
+      mouseOffset$,
       combineLatest([containerWidth$, containerHeight$]).pipe(
         map(([width, height]) => ({ width, height }))
       ),
@@ -85,6 +90,14 @@ export default defineComponent({
       top: 0,
       width: 0,
       height: 0,
+    });
+    const zoom = useAsRef(zoom$, 50);
+
+    watch(pos, (p) => {
+      emit("update:offset", p);
+    });
+    watch(zoom, (z) => {
+      emit("update:zoom", z);
     });
 
     return {

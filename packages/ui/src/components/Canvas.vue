@@ -12,12 +12,12 @@ import type { Actions } from "./action";
 import io from "socket.io-client";
 
 export default defineComponent({
-  props: ["brushSize", "brushColor", "actions"],
-  emits: ["update:actions"],
+  props: ["brushSize", "brushColor", "actions", "canvasRef"],
+  emit: ["update:canvasRef"],
   setup(props, { emit }) {
     const socket = io("ws://localhost:3001");
 
-    const { brushSize, brushColor, actions } = toRefs(props);
+    const { brushSize, brushColor, canvasRef } = toRefs(props);
 
     const update = (nextActions: Actions) => {
       socket.emit("fibers", nextActions);
@@ -74,6 +74,9 @@ export default defineComponent({
         );
       },
     });
+
+    emit("update:canvasRef", ctx.canvas);
+
     // @ts-ignore
     window.ctx = ctx;
 

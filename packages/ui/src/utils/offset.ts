@@ -124,3 +124,14 @@ export function makeMouseZoom$(
     startWith(INITIAL_ZOOM)
   );
 }
+
+export function makeMouseDelta$(
+  element$: Observable<HTMLElement>
+): Observable<{ x: number; y: number }> {
+  const wheel$ = fromEvent$<WheelEvent>(element$, "wheel");
+
+  return wheel$.pipe(
+    map(({ deltaX, deltaY }) => ({ x: deltaX, y: deltaY })),
+    startWith({ x: 0, y: 0 })
+  );
+}
