@@ -2,10 +2,10 @@ import { Observable, BehaviorSubject, combineLatest } from "rxjs";
 import { map, filter } from "rxjs/operators";
 
 import {
-  makeMouseOffset$,
+  makeMousePressedOffset$,
   makeMouseZoom$,
   makeOffsetController$,
-  makeMouseDelta$,
+  makeMouseWheelDelta$,
 } from "./offset";
 import { makeElementRatio$ } from "./ratio";
 
@@ -15,8 +15,10 @@ function makeOffset$(
 ): Observable<{ left: number; top: number }> {
   const offset$ = new BehaviorSubject({ left: 0, top: 0 });
 
-  const mouseOffset$ = makeMouseOffset$(new BehaviorSubject(referenceCanvas));
-  const mouseDelta$ = makeMouseDelta$(new BehaviorSubject(canvas));
+  const mouseOffset$ = makeMousePressedOffset$(
+    new BehaviorSubject(referenceCanvas)
+  );
+  const mouseDelta$ = makeMouseWheelDelta$(new BehaviorSubject(canvas));
 
   mouseOffset$.subscribe(offset$);
   mouseDelta$.subscribe(({ x, y }) => {

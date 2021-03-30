@@ -92,21 +92,44 @@ export function makeOffsetController$(
   );
 }
 
-export function makeMouseOffset$(
+export function makeMousePressedMove$(
   element$: Observable<HTMLElement>
-): Observable<{ left: number; top: number }> {
+): Observable<MouseEvent> {
   const down$ = fromEvent$<MouseEvent>(element$, "mousedown");
   const move$ = fromEvent$<MouseEvent>(element$, "mousemove");
   const up$ = fromEvent<MouseEvent>(document, "mouseup");
 
   return down$.pipe(
     switchMap((e) => {
-      return concat(of(e), move$).pipe(
-        takeUntil(up$),
-        map(({ offsetX, offsetY }) => ({ left: offsetX, top: offsetY }))
-      );
-    }),
+      return concat(of(e), move$).pipe(takeUntil(up$));
+    })
+  );
+}
+
+export function makeMousePressedOffset$(
+  element$: Observable<HTMLElement>
+): Observable<{ left: number; top: number }> {
+  const pressedMove$ = makeMousePressedMove$(element$);
+
+  return pressedMove$.pipe(
+    map(({ offsetX, offsetY }) => ({ left: offsetX, top: offsetY })),
+
     startWith({ left: INITIAL_OFFSET, top: INITIAL_OFFSET })
+  );
+}
+
+export function makeMousePressedDelta$(
+  element$: Observable<HTMLElement>
+): Observable<{ x: number; y: number; toX: number; toY: number }> {
+  const pressedMove$ = makeMousePressedMove$(element$);
+
+  return pressedMove$.pipe(
+    map(({ movementX, movementY, offsetX, offsetY }) => ({
+      x: offsetX,
+      y: offsetY,
+      toX: offsetX - movementX,
+      toY: offsetY - movementY,
+    }))
   );
 }
 
@@ -125,12 +148,13 @@ export function makeMouseZoom$(
   );
 }
 
-export function makeMouseDelta$(
+export function makeMouseWheelDelta$(
   element$: Observable<HTMLElement>
 ): Observable<{ x: number; y: number }> {
   const wheel$ = fromEvent$<WheelEvent>(element$, "wheel");
 
   return wheel$.pipe(
+    tap(stopPropagation),
     map(({ deltaX, deltaY }) => ({ x: deltaX, y: deltaY })),
     startWith({ x: 0, y: 0 })
   );
