@@ -4,21 +4,28 @@ import { map, filter } from "rxjs/operators";
 import {
   makeMousePressedOffset$,
   makeMouseZoom$,
-  makeOffsetController$,
   makeMouseWheelDelta$,
-} from "./offset";
+} from "./mouse";
+import { makeOffsetController$ } from "./offset";
 import { makeElementRatio$ } from "./ratio";
 
+const INITIAL_ZOOM = 20;
+const INITIAL_OFFSET = 0;
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 100;
+const DELTA_SPEED = 0.5;
+
 function makeOffset$(
-  referenceCanvas: HTMLCanvasElement,
-  canvas: HTMLCanvasElement
+  referenceCanvas$: Observable<HTMLCanvasElement>,
+  canvas$: Observable<HTMLCanvasElement>
 ): Observable<{ left: number; top: number }> {
   const offset$ = new BehaviorSubject({ left: 0, top: 0 });
 
   const mouseOffset$ = makeMousePressedOffset$(
-    new BehaviorSubject(referenceCanvas)
+    referenceCanvas$,
+    INITIAL_OFFSET
   );
-  const mouseDelta$ = makeMouseWheelDelta$(new BehaviorSubject(canvas));
+  const mouseDelta$ = makeMouseWheelDelta$(canvas$);
 
   mouseOffset$.subscribe(offset$);
   mouseDelta$.subscribe(({ x, y }) => {
@@ -29,32 +36,32 @@ function makeOffset$(
 }
 
 export function makeHole$(
-  referenceCanvas: HTMLCanvasElement,
-  canvas: HTMLCanvasElement
+  referenceCanvas$: Observable<HTMLCanvasElement>,
+  canvas$: Observable<HTMLCanvasElement>
 ): Observable<{ width: number; height: number; left: number; top: number }> {
-  const offset$ = makeOffset$(referenceCanvas, canvas);
+  const offset$ = makeOffset$(referenceCanvas$, canvas$);
 
-  const zoom$ = makeMouseZoom$(new BehaviorSubject(referenceCanvas));
+  const zoom$ = makeMouseZoom$(referenceCanvas$, {
+    max: MAX_ZOOM,
+    min: MIN_ZOOM,
+    speed: DELTA_SPEED,
+    initial: INITIAL_ZOOM,
+  });
 
-  const ratio$ = makeElementRatio$(canvas);
+  const ratio$ = makeElementRatio$(canvas$);
 
   const hole$ = makeOffsetController$(
     offset$,
-    new BehaviorSubject({
-      width: referenceCanvas.width,
-      height: referenceCanvas.height,
-    }),
+    referenceCanvas$.pipe(map(({ width, height }) => ({ width, height }))),
     ratio$,
     zoom$
   );
-
-  console.warn("w", referenceCanvas.width);
 
   return hole$;
 }
 
 export function makeHoleScale$(
-  canvas: HTMLCanvasElement,
+  canvas$: Observable<HTMLCanvasElement>,
   hole$: Observable<{
     width: number;
     height: number;
@@ -62,8 +69,8 @@ export function makeHoleScale$(
     left: number;
   }>
 ): Observable<number> {
-  const scale$ = hole$.pipe(
-    map(({ width }) => {
+  const scale$ = combineLatest([hole$, canvas$]).pipe(
+    map(([{ width }, canvas]) => {
       return canvas.width / width;
     })
   );
@@ -72,7 +79,7 @@ export function makeHoleScale$(
 }
 
 export function makeHoleImageData$(
-  referenceCanvas: HTMLCanvasElement,
+  referenceCanvas$: Observable<HTMLCanvasElement>,
   hole$: Observable<{
     width: number;
     height: number;
@@ -85,8 +92,8 @@ export function makeHoleImageData$(
     data: ImageData;
     width: number;
     height: number;
-  }> = hole$.pipe(
-    map(({ width, height, left, top }) => {
+  }> = combineLatest([hole$, referenceCanvas$]).pipe(
+    map(([{ width, height, left, top }, referenceCanvas]) => {
       const ctx = referenceCanvas.getContext("2d");
 
       return {
@@ -102,12 +109,12 @@ export function makeHoleImageData$(
 }
 
 export function applyCanvasHole(
-  canvas: HTMLCanvasElement,
+  canvas$: Observable<HTMLCanvasElement>,
   scale$: Observable<number>,
   imageData$: Observable<{ data: ImageData; width: number; height: number }>
 ): void {
-  combineLatest([scale$, imageData$]).subscribe(
-    ([scale, { data, height, width }]) => {
+  combineLatest([scale$, imageData$, canvas$]).subscribe(
+    ([scale, { data, height, width }, canvas]) => {
       const ctx = canvas.getContext("2d");
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = width;

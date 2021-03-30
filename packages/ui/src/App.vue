@@ -19,17 +19,17 @@ import Canvas from "./components/Canvas.vue";
 import BrushSize from "./components/BrushSize.vue";
 import BrushColor from "./components/BrushColor.vue";
 import ReferenceCanvas from "./components/ReferenceCanvas.vue";
-import { BehaviorSubject } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
+import { withLatestFrom, filter } from "rxjs/operators";
 
-import { onMounted, ref, defineComponent, nextTick } from "vue";
+import { ref, defineComponent } from "vue";
 import {
   makeHole$,
   applyCanvasHole,
   makeHoleImageData$,
   makeHoleScale$,
   makeMousePressedDelta$,
-} from "./utils";
+} from "./reactiveUtils";
+import { notNull } from "./utils";
 import { useAsObservable } from "./hooks/useAsObservable";
 
 export default defineComponent({
@@ -42,8 +42,8 @@ export default defineComponent({
   },
   setup() {
     const canvasRef = ref(null);
-
     const referenceCanvasRef = ref(null);
+
     const brushSize = ref(2);
     const brushColor = ref("#000");
     const canvasWidth = ref(2000);
@@ -52,70 +52,73 @@ export default defineComponent({
     const brushColor$ = useAsObservable(brushColor);
     const brushSize$ = useAsObservable(brushSize);
 
-    onMounted(() => {
-      nextTick(() => {
-        const referenceCanvas = referenceCanvasRef.value;
-        const canvas = canvasRef.value;
+    const canvas$ = useAsObservable<HTMLCanvasElement | null>(canvasRef).pipe(
+      filter(notNull)
+    );
+    const referenceCanvas$ = useAsObservable<HTMLCanvasElement | null>(
+      referenceCanvasRef
+    ).pipe(filter(notNull));
 
-        console.warn("w", referenceCanvas, canvas);
+    const hole$ = makeHole$(referenceCanvas$, canvas$);
+    const scale$ = makeHoleScale$(canvas$, hole$);
+    const holeImageData$ = makeHoleImageData$(referenceCanvas$, hole$);
 
-        if (referenceCanvas && canvas) {
-          const hole$ = makeHole$(referenceCanvas, canvas);
-          const scale$ = makeHoleScale$(canvas, hole$);
-          const holeImageData$ = makeHoleImageData$(referenceCanvas, hole$);
+    applyCanvasHole(canvas$, scale$, holeImageData$);
 
-          applyCanvasHole(canvas, scale$, holeImageData$);
+    hole$.subscribe((h) => {
+      hole.value = h;
+    });
 
-          hole$.subscribe((h) => {
-            hole.value = h;
-          });
+    const pressedDelta$ = makeMousePressedDelta$(canvas$);
 
-          const pressedDelta$ = makeMousePressedDelta$(
-            new BehaviorSubject(canvas)
-          );
+    pressedDelta$
+      .pipe(withLatestFrom(brushColor$, brushSize$, scale$, canvas$))
+      .subscribe(([{ x, y, toX, toY }, color, size, scale, canvas]) => {
+        // @ts-ignore
+        const ctx = canvas.getContext("2d");
 
-          pressedDelta$
-            .pipe(withLatestFrom(brushColor$, brushSize$, scale$))
-            .subscribe(([{ x, y, toX, toY }, color, size, scale]) => {
-              // @ts-ignore
-              const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.fillStyle = ctx.strokeStyle = color;
+          ctx.lineWidth = size;
 
-              if (ctx) {
-                ctx.lineCap = "round";
-                ctx.lineJoin = "round";
-                ctx.fillStyle = ctx.strokeStyle = color;
-                ctx.lineWidth = size;
-
-                ctx.beginPath();
-                ctx.moveTo(x / scale, y / scale);
-                ctx.lineTo(toX / scale, toY / scale);
-                ctx.stroke();
-              }
-            });
-
-          pressedDelta$
-            .pipe(withLatestFrom(brushColor$, brushSize$, scale$, hole$))
-            .subscribe(
-              ([{ x, y, toX, toY }, color, size, scale, { left, top }]) => {
-                // @ts-ignore
-                const ctx = referenceCanvas.getContext("2d");
-
-                if (ctx) {
-                  ctx.lineCap = "round";
-                  ctx.lineJoin = "round";
-                  ctx.fillStyle = ctx.strokeStyle = color;
-                  ctx.lineWidth = size;
-
-                  ctx.beginPath();
-                  ctx.moveTo(x / scale + left, y / scale + top);
-                  ctx.lineTo(toX / scale + left, toY / scale + top);
-                  ctx.stroke();
-                }
-              }
-            );
+          ctx.beginPath();
+          ctx.moveTo(x / scale, y / scale);
+          ctx.lineTo(toX / scale, toY / scale);
+          ctx.stroke();
         }
       });
-    });
+
+    pressedDelta$
+      .pipe(
+        withLatestFrom(brushColor$, brushSize$, scale$, hole$, referenceCanvas$)
+      )
+      .subscribe(
+        ([
+          { x, y, toX, toY },
+          color,
+          size,
+          scale,
+          { left, top },
+          referenceCanvas,
+        ]) => {
+          // @ts-ignore
+          const ctx = referenceCanvas.getContext("2d");
+
+          if (ctx) {
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.fillStyle = ctx.strokeStyle = color;
+            ctx.lineWidth = size;
+
+            ctx.beginPath();
+            ctx.moveTo(x / scale + left, y / scale + top);
+            ctx.lineTo(toX / scale + left, toY / scale + top);
+            ctx.stroke();
+          }
+        }
+      );
 
     return {
       canvasRef,
