@@ -26,7 +26,7 @@ function makeOffset$(
   return offset$;
 }
 
-function makeHole$(
+export function makeHole$(
   referenceCanvas: HTMLCanvasElement,
   canvas: HTMLCanvasElement
 ): Observable<{ width: number; height: number; left: number; top: number }> {
@@ -51,58 +51,72 @@ function makeHole$(
   return hole$;
 }
 
-export function makeCanvasReference(
-  referenceCanvas: HTMLCanvasElement,
-  canvas: HTMLCanvasElement
-): {
+export function makeHoleScale$(
+  canvas: HTMLCanvasElement,
   hole$: Observable<{
     width: number;
     height: number;
     top: number;
     left: number;
-  }>;
-  scale$: Observable<number>;
-  imageData$: Observable<ImageData>;
-} {
-  const hole$ = makeHole$(referenceCanvas, canvas);
-
-  // @ts-ignore
-  const imageData$: Observable<ImageData> = hole$.pipe(
-    map(({ width, height, left, top }) => {
-      const ctx = referenceCanvas.getContext("2d");
-
-      return ctx?.getImageData(left, top, width, height);
-    }),
-    filter(Boolean)
-  );
-
+  }>
+): Observable<number> {
   const scale$ = hole$.pipe(
     map(({ width }) => {
       return canvas.width / width;
     })
   );
 
-  return { hole$, imageData$, scale$ };
+  return scale$;
 }
 
-export function applyCanvasReference(
+export function makeHoleImageData$(
+  referenceCanvas: HTMLCanvasElement,
+  hole$: Observable<{
+    width: number;
+    height: number;
+    top: number;
+    left: number;
+  }>
+): Observable<{ width: number; height: number; data: ImageData }> {
+  // @ts-ignore
+  const imageData$: Observable<{
+    data: ImageData;
+    width: number;
+    height: number;
+  }> = hole$.pipe(
+    map(({ width, height, left, top }) => {
+      const ctx = referenceCanvas.getContext("2d");
+
+      return {
+        data: ctx?.getImageData(left, top, width, height),
+        width,
+        height,
+      };
+    }),
+    filter(Boolean)
+  );
+
+  return imageData$;
+}
+
+export function applyCanvasHole(
   canvas: HTMLCanvasElement,
   scale$: Observable<number>,
-  imageData$: Observable<ImageData>
+  imageData$: Observable<{ data: ImageData; width: number; height: number }>
 ): void {
-  combineLatest([scale$, imageData$]).subscribe(([scale, data]) => {
-    const ctx = canvas.getContext("2d");
+  combineLatest([scale$, imageData$]).subscribe(
+    ([scale, { data, height, width }]) => {
+      const ctx = canvas.getContext("2d");
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = width;
+      tempCanvas.height = height;
 
-    ctx?.setTransform(1, 0, 0, 1, 0, 0);
-    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+      ctx?.setTransform(1, 0, 0, 1, 0, 0);
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (scale >= 1) {
-      ctx?.putImageData(data, 0, 0);
+      tempCanvas.getContext("2d")?.putImageData(data, 0, 0);
       ctx?.scale(scale, scale);
-      ctx?.drawImage(ctx.canvas, 0, 0);
-    } else {
-      ctx?.scale(scale, scale);
-      ctx?.putImageData(data, 0, 0);
+      ctx?.drawImage(tempCanvas, 0, 0);
     }
-  });
+  );
 }

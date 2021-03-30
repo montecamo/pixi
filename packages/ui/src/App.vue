@@ -21,7 +21,12 @@ import BrushColor from "./components/BrushColor.vue";
 import ReferenceCanvas from "./components/ReferenceCanvas.vue";
 
 import { onMounted, ref, defineComponent, nextTick } from "vue";
-import { makeCanvasReference, applyCanvasReference } from "./utils";
+import {
+  makeHole$,
+  applyCanvasHole,
+  makeHoleImageData$,
+  makeHoleScale$,
+} from "./utils";
 
 export default defineComponent({
   name: "App",
@@ -43,15 +48,15 @@ export default defineComponent({
 
     onMounted(() => {
       nextTick(() => {
-        console.warn("el", referenceCanvasRef.value, canvasRef.value);
-        if (referenceCanvasRef.value && canvasRef.value) {
-          console.warn("start");
-          const { hole$, scale$, imageData$ } = makeCanvasReference(
-            referenceCanvasRef.value!,
-            canvasRef.value!
-          );
+        const referenceCanvas = referenceCanvasRef.value;
+        const canvas = canvasRef.value;
 
-          applyCanvasReference(canvasRef.value!, scale$, imageData$);
+        if (referenceCanvas && canvas) {
+          const hole$ = makeHole$(referenceCanvas, canvas);
+          const scale$ = makeHoleScale$(canvas, hole$);
+          const holeImageData$ = makeHoleImageData$(referenceCanvas, hole$);
+
+          applyCanvasHole(canvas, scale$, holeImageData$);
 
           hole$.subscribe((h) => {
             hole.value = h;
