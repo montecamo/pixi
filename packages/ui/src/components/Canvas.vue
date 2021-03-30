@@ -10,8 +10,8 @@ export default defineComponent({
   emit: ["update:canvasRef"],
   setup(_, { emit }) {
     const canvas = ref(null);
-    const width = ref(window.innerHeight);
-    const height = ref(window.innerWidth);
+    const width = ref(window.innerWidth);
+    const height = ref(window.innerHeight);
 
     window.addEventListener("resize", () => {
       width.value = window.innerWidth;
