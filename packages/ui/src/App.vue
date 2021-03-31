@@ -19,7 +19,11 @@ import Canvas from "./components/Canvas.vue";
 import BrushSize from "./components/BrushSize.vue";
 import BrushColor from "./components/BrushColor.vue";
 import ReferenceCanvas from "./components/ReferenceCanvas.vue";
-import { withLatestFrom, filter } from "rxjs/operators";
+import { merge, Observable } from "rxjs";
+import { withLatestFrom, filter, map } from "rxjs/operators";
+import { makeApi } from "./api";
+import { makeFiber, moveFiber, scaleFiber, renderFiber } from "./fibers";
+import type { Fibers } from "./fibers";
 
 import { ref, defineComponent } from "vue";
 import {
@@ -43,6 +47,7 @@ export default defineComponent({
   setup() {
     const canvasRef = ref(null);
     const referenceCanvasRef = ref(null);
+    const api = makeApi();
 
     const brushSize = ref(2);
     const brushColor = ref("#000");
@@ -71,54 +76,55 @@ export default defineComponent({
 
     const pressedDelta$ = makeMousePressedDelta$(canvas$);
 
-    pressedDelta$
-      .pipe(withLatestFrom(brushColor$, brushSize$, scale$, canvas$))
-      .subscribe(([{ x, y, toX, toY }, color, size, scale, canvas]) => {
-        // @ts-ignore
+    const serverFibers$: Observable<Fibers> = api.joinRoom(
+      window.location.pathname.slice(1)
+    );
+    const localFibers$: Observable<Fibers> = pressedDelta$.pipe(
+      withLatestFrom(brushColor$, brushSize$),
+      map(([{ x, y, toX, toY }, color, size]) => {
+        return [makeFiber(x, y, toX, toY, color, size)];
+      }),
+      withLatestFrom(scale$, hole$),
+      map(([fibers, scale, { left, top }]) =>
+        fibers.map((f) => moveFiber(scaleFiber(f, scale), left, top))
+      )
+    );
+
+    const fibers$ = merge(serverFibers$, localFibers$);
+
+    localFibers$.subscribe((fibers) => {
+      api.draw(fibers);
+    });
+
+    fibers$
+      .pipe(
+        withLatestFrom(hole$),
+        map(([fibers, { left, top }]) =>
+          fibers.map((f) => moveFiber(f, -left, -top))
+        ),
+        withLatestFrom(canvas$)
+      )
+      .subscribe(([fibers, canvas]) => {
         const ctx = canvas.getContext("2d");
 
         if (ctx) {
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-          ctx.fillStyle = ctx.strokeStyle = color;
-          ctx.lineWidth = size;
-
-          ctx.beginPath();
-          ctx.moveTo(x / scale, y / scale);
-          ctx.lineTo(toX / scale, toY / scale);
-          ctx.stroke();
+          fibers.forEach((f) => {
+            renderFiber(ctx, f);
+          });
         }
       });
 
-    pressedDelta$
-      .pipe(
-        withLatestFrom(brushColor$, brushSize$, scale$, hole$, referenceCanvas$)
-      )
-      .subscribe(
-        ([
-          { x, y, toX, toY },
-          color,
-          size,
-          scale,
-          { left, top },
-          referenceCanvas,
-        ]) => {
-          // @ts-ignore
-          const ctx = referenceCanvas.getContext("2d");
+    fibers$
+      .pipe(withLatestFrom(referenceCanvas$))
+      .subscribe(([fibers, referenceCanvas]) => {
+        const ctx = referenceCanvas.getContext("2d");
 
-          if (ctx) {
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-            ctx.fillStyle = ctx.strokeStyle = color;
-            ctx.lineWidth = size;
-
-            ctx.beginPath();
-            ctx.moveTo(x / scale + left, y / scale + top);
-            ctx.lineTo(toX / scale + left, toY / scale + top);
-            ctx.stroke();
-          }
+        if (ctx) {
+          fibers.forEach((f) => {
+            renderFiber(ctx, f);
+          });
         }
-      );
+      });
 
     return {
       canvasRef,

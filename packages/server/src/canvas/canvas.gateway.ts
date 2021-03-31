@@ -14,11 +14,17 @@ export class CanvasGateway {
 
   @SubscribeMessage('fibers')
   listenForMessages(
-    @MessageBody() data: string,
+    // @ts-ignore
+    @MessageBody() { fibers, roomId }: { fibers: Array; id: string },
     @ConnectedSocket() client: Socket,
   ) {
-    console.warn('message', data);
-    client.broadcast.emit('fibers', data);
-    // this.server.sockets.emit('fibers', data);
+    console.warn('fibers', fibers, roomId);
+    client.to(roomId).emit('fibers', fibers);
+  }
+
+  @SubscribeMessage('join')
+  joinRoom(@MessageBody() id: string, @ConnectedSocket() client: Socket) {
+    client.join(id);
+    client.emit('joined');
   }
 }
