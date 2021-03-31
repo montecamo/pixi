@@ -7,6 +7,5 @@ export function draw(
   roomId: string,
   fibers: Fibers
 ): void {
-  console.warn("emit", roomId, fibers);
   socket.emit("fibers", { fibers, roomId });
 }

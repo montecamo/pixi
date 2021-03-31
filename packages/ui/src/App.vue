@@ -12,6 +12,7 @@
     :hole="hole"
     v-model:canvas-ref="referenceCanvasRef"
   />
+  <UsersComp :users="users" />
 </template>
 
 <script lang="ts">
@@ -19,11 +20,15 @@ import Canvas from "./components/Canvas.vue";
 import BrushSize from "./components/BrushSize.vue";
 import BrushColor from "./components/BrushColor.vue";
 import ReferenceCanvas from "./components/ReferenceCanvas.vue";
-import { merge, Observable } from "rxjs";
+import UsersComp from "./components/Users.vue";
+
+import { merge, Observable, combineLatest } from "rxjs";
 import { withLatestFrom, filter, map } from "rxjs/operators";
 import { makeApi } from "./api";
 import { makeFiber, moveFiber, scaleFiber, renderFiber } from "./fibers";
 import type { Fibers } from "./fibers";
+import { makeUser } from "./users";
+import type { Users } from "./users";
 
 import { ref, defineComponent } from "vue";
 import {
@@ -32,6 +37,7 @@ import {
   makeHoleImageData$,
   makeHoleScale$,
   makeMousePressedDelta$,
+  makeMouseOffset$,
 } from "./reactiveUtils";
 import { notNull } from "./utils";
 import { useAsObservable } from "./hooks/useAsObservable";
@@ -43,11 +49,14 @@ export default defineComponent({
     BrushSize,
     BrushColor,
     ReferenceCanvas,
+    UsersComp,
   },
   setup() {
     const canvasRef = ref(null);
     const referenceCanvasRef = ref(null);
     const api = makeApi();
+    const uid = String(Math.random());
+    const users = ref<Users>([]);
 
     const brushSize = ref(2);
     const brushColor = ref("#000");
@@ -67,6 +76,7 @@ export default defineComponent({
     const hole$ = makeHole$(referenceCanvas$, canvas$);
     const scale$ = makeHoleScale$(canvas$, hole$);
     const holeImageData$ = makeHoleImageData$(referenceCanvas$, hole$);
+    const userPosition$ = makeMouseOffset$(canvas$);
 
     applyCanvasHole(canvas$, scale$, holeImageData$);
 
@@ -74,11 +84,33 @@ export default defineComponent({
       hole.value = h;
     });
 
+    userPosition$.subscribe((pos) => {
+      api.updateUser(makeUser(uid, pos));
+    });
+
     const pressedDelta$ = makeMousePressedDelta$(canvas$);
 
-    const serverFibers$: Observable<Fibers> = api.joinRoom(
+    const { fibers$: serverFibers$, users$: serverUsers$ } = api.joinRoom(
       window.location.pathname.slice(1)
     );
+
+    serverUsers$.subscribe((user) => {
+      const filtered = users.value.filter((u) => u.id !== user.id);
+
+      filtered.push(user);
+
+      users.value = filtered;
+    });
+
+    hole$.subscribe(({ left, top }) => {
+      users.value = users.value.map((u) =>
+        makeUser(u.id, {
+          left: u.position.left - left,
+          top: u.position.top - top,
+        })
+      );
+    });
+
     const localFibers$: Observable<Fibers> = pressedDelta$.pipe(
       withLatestFrom(brushColor$, brushSize$),
       map(([{ x, y, toX, toY }, color, size]) => {
@@ -134,6 +166,7 @@ export default defineComponent({
       hole,
       canvasWidth,
       canvasHeight,
+      users,
     };
   },
 });

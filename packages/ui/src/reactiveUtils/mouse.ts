@@ -31,6 +31,19 @@ export function makeMousePressedOffset$(
   );
 }
 
+export function makeMouseOffset$(
+  element$: Observable<HTMLElement>,
+  initial: number = 0
+): Observable<{ left: number; top: number }> {
+  const move$ = fromEvent$<MouseEvent>(element$, "mousemove");
+
+  return move$.pipe(
+    map(({ offsetX, offsetY }) => ({ left: offsetX, top: offsetY })),
+
+    startWith({ left: initial, top: initial })
+  );
+}
+
 export function makeMousePressedDelta$(
   element$: Observable<HTMLElement>
 ): Observable<{ x: number; y: number; toX: number; toY: number }> {

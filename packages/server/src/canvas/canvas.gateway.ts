@@ -27,4 +27,18 @@ export class CanvasGateway {
     client.join(id);
     client.emit('joined');
   }
+
+  @SubscribeMessage('users')
+  users(
+    @MessageBody()
+    {
+      id,
+      position,
+      roomId,
+    }: { roomId: string; id: string; position: { left: number; top: number } },
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.warn('users', id, position, roomId);
+    client.to(roomId).emit('users', { id, position });
+  }
 }
