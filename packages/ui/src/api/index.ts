@@ -13,6 +13,7 @@ export function makeApi(): {
   ) => {
     fibers$: Observable<Fibers>;
     users$: Observable<User>;
+    usersDisconnected$: Observable<string>;
   };
   draw: (fibers: Fibers) => void;
   updateUser: (user: User) => void;

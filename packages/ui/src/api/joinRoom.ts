@@ -7,9 +7,14 @@ import { Observable, Subject } from "rxjs";
 export function joinRoom(
   socket: typeof Socket,
   id: string
-): { fibers$: Observable<Fibers>; users$: Observable<User> } {
+): {
+  fibers$: Observable<Fibers>;
+  users$: Observable<User>;
+  usersDisconnected$: Observable<string>;
+} {
   const fibers$ = new Subject<Fibers>();
   const users$ = new Subject<User>();
+  const usersDisconnected$ = new Subject<string>();
 
   socket.emit("join", id);
 
@@ -19,6 +24,9 @@ export function joinRoom(
   socket.on("users", (user: User) => {
     users$.next(user);
   });
+  socket.on("userDisconnected", (uid: string) => {
+    usersDisconnected$.next(uid);
+  });
 
-  return { fibers$, users$ };
+  return { fibers$, users$, usersDisconnected$ };
 }

@@ -55,7 +55,6 @@ export default defineComponent({
     const canvasRef = ref(null);
     const referenceCanvasRef = ref(null);
     const api = makeApi();
-    const uid = String(Math.random());
     const users = ref<Users>([]);
 
     const brushSize = ref(2);
@@ -85,14 +84,16 @@ export default defineComponent({
     });
 
     userPosition$.subscribe((pos) => {
-      api.updateUser(makeUser(uid, pos));
+      api.updateUser(makeUser("", pos));
     });
 
     const pressedDelta$ = makeMousePressedDelta$(canvas$);
 
-    const { fibers$: serverFibers$, users$: serverUsers$ } = api.joinRoom(
-      window.location.pathname.slice(1)
-    );
+    const {
+      fibers$: serverFibers$,
+      users$: serverUsers$,
+      usersDisconnected$,
+    } = api.joinRoom(window.location.pathname.slice(1));
 
     serverUsers$.subscribe((user) => {
       const filtered = users.value.filter((u) => u.id !== user.id);
@@ -100,6 +101,10 @@ export default defineComponent({
       filtered.push(user);
 
       users.value = filtered;
+    });
+
+    usersDisconnected$.subscribe((id) => {
+      users.value = users.value.filter((u) => u.id !== id);
     });
 
     hole$.subscribe(({ left, top }) => {

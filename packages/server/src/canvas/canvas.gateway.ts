@@ -18,27 +18,32 @@ export class CanvasGateway {
     @MessageBody() { fibers, roomId }: { fibers: Array; id: string },
     @ConnectedSocket() client: Socket,
   ) {
-    console.warn('fibers', fibers, roomId);
     client.to(roomId).emit('fibers', fibers);
   }
 
   @SubscribeMessage('join')
   joinRoom(@MessageBody() id: string, @ConnectedSocket() client: Socket) {
     client.join(id);
-    client.emit('joined');
+
+    client.on('disconnecting', () => {
+      const rooms = Object.keys(client.rooms);
+
+      console.warn('disconnected', rooms);
+      rooms.forEach((room) =>
+        client.to(room).emit('userDisconnected', client.id),
+      );
+    });
   }
 
   @SubscribeMessage('users')
   users(
     @MessageBody()
     {
-      id,
       position,
       roomId,
     }: { roomId: string; id: string; position: { left: number; top: number } },
     @ConnectedSocket() client: Socket,
   ) {
-    console.warn('users', id, position, roomId);
-    client.to(roomId).emit('users', { id, position });
+    client.to(roomId).emit('users', { id: client.id, position });
   }
 }
