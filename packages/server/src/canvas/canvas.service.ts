@@ -4,6 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Canvas, CanvasDocument } from './canvas.schema';
 import { CreateCanvasDto } from './dto/create-canvas.dto';
 
+import type { Fibers } from './types';
+
 @Injectable()
 export class CanvasService {
   constructor(
@@ -21,5 +23,23 @@ export class CanvasService {
 
   async deleteAllCanvases(): Promise<void> {
     return this.canvasModel.remove().exec();
+  }
+
+  async updateCanvas(canvasId: string, fibers: Fibers): Promise<boolean> {
+    const canvas = await this.getCanvas(canvasId);
+
+    if (canvas) {
+      await canvas.updateOne({
+        $push: { fibers: { $each: fibers } },
+      });
+
+      return true;
+    }
+
+    return false;
+  }
+
+  async getCanvas(canvasId: string): Promise<CanvasDocument | null> {
+    return this.canvasModel.findOne({ id: canvasId }).exec();
   }
 }

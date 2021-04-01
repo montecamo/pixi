@@ -1,4 +1,5 @@
+import type { Fibers } from '../types';
 export class CreateCanvasDto {
   readonly id: string;
-  readonly fibers: number[];
+  readonly fibers: Fibers;
 }

@@ -56,6 +56,7 @@ export default defineComponent({
     const referenceCanvasRef = ref(null);
     const api = makeApi();
     const users = ref<Users>([]);
+    const renderUsers = ref<Users>([]);
 
     const brushSize = ref(2);
     const brushColor = ref("#000");
@@ -83,9 +84,16 @@ export default defineComponent({
       hole.value = h;
     });
 
-    userPosition$.subscribe((pos) => {
-      api.updateUser(makeUser("", pos));
-    });
+    userPosition$
+      .pipe(withLatestFrom(hole$, scale$))
+      .subscribe(([pos, { left, top }, scale]) => {
+        api.updateUser(
+          makeUser("", {
+            left: pos.left / scale + left,
+            top: pos.top / scale + top,
+          })
+        );
+      });
 
     const pressedDelta$ = makeMousePressedDelta$(canvas$);
 
@@ -101,17 +109,19 @@ export default defineComponent({
       filtered.push(user);
 
       users.value = filtered;
+      renderUsers.value = filtered;
     });
 
     usersDisconnected$.subscribe((id) => {
       users.value = users.value.filter((u) => u.id !== id);
+      renderUsers.value = renderUsers.value.filter((u) => u.id !== id);
     });
 
-    hole$.subscribe(({ left, top }) => {
-      users.value = users.value.map((u) =>
+    combineLatest([hole$, scale$]).subscribe(([{ left, top }, scale]) => {
+      renderUsers.value = users.value.map((u) =>
         makeUser(u.id, {
-          left: u.position.left - left,
-          top: u.position.top - top,
+          left: u.position.left / scale - left,
+          top: u.position.top / scale - top,
         })
       );
     });
@@ -171,7 +181,7 @@ export default defineComponent({
       hole,
       canvasWidth,
       canvasHeight,
-      users,
+      users: renderUsers,
     };
   },
 });

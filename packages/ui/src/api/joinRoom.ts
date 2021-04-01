@@ -16,7 +16,11 @@ export function joinRoom(
   const users$ = new Subject<User>();
   const usersDisconnected$ = new Subject<string>();
 
-  socket.emit("join", id);
+  socket.emit("joinRoom", id);
+
+  socket.on("joinedRoom", (fibers: Fibers) => {
+    fibers$.next(fibers);
+  });
 
   socket.on("fibers", (fibers: Fibers) => {
     fibers$.next(fibers);
