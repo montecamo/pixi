@@ -26,17 +26,14 @@ export class CanvasService {
   }
 
   async updateCanvas(canvasId: string, fibers: Fibers): Promise<boolean> {
-    const canvas = await this.getCanvas(canvasId);
-
-    if (canvas) {
-      await canvas.updateOne({
+    await this.canvasModel.updateOne(
+      { id: canvasId },
+      {
         $push: { fibers: { $each: fibers } },
-      });
+      },
+    );
 
-      return true;
-    }
-
-    return false;
+    return true;
   }
 
   async getCanvas(canvasId: string): Promise<CanvasDocument | null> {
