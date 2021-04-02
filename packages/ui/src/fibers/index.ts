@@ -31,7 +31,14 @@ export function scaleFiber(
   { x, y, toX, toY, color, size }: Fiber,
   scale: number
 ): Fiber {
-  return makeFiber(x / scale, y / scale, toX / scale, toY / scale, color, size);
+  return makeFiber(
+    x / scale,
+    y / scale,
+    toX / scale,
+    toY / scale,
+    color,
+    size / scale
+  );
 }
 
 export function renderFiber(

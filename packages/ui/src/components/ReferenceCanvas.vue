@@ -3,12 +3,12 @@
     <canvas :width="width" :height="height" class="canvas" ref="canvas" />
     <div
       :style="{
-        left: `${hole.left - 1}px`,
-        top: `${hole.top - 1}px`,
-        width: `${hole.width}px`,
-        height: `${hole.height}px`,
+        left: `${focusArea.coordinates.x - 1}px`,
+        top: `${focusArea.coordinates.y - 1}px`,
+        width: `${focusArea.width}px`,
+        height: `${focusArea.height}px`,
       }"
-      class="hole"
+      class="focus-area"
     ></div>
   </div>
 </template>
@@ -17,7 +17,7 @@
 import { defineComponent, ref, watch, onMounted } from "vue";
 
 export default defineComponent({
-  props: ["hole", "width", "height", "canvasRef"],
+  props: ["focusArea", "width", "height", "canvasRef"],
   emits: ["update:canvasRef"],
   setup(_, { emit }) {
     const canvas = ref(null);
@@ -59,7 +59,7 @@ export default defineComponent({
   overflow: auto;
 }
 
-.hole {
+.focus-area {
   border: 10px solid lightcoral;
   position: absolute;
   pointer-events: none;

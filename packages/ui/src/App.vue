@@ -9,7 +9,7 @@
   <ReferenceCanvas
     :width="canvasWidth"
     :height="canvasHeight"
-    :hole="hole"
+    :focusArea="focusArea"
     v-model:canvas-ref="referenceCanvasRef"
   />
   <UsersComp :users="users" />
@@ -23,22 +23,32 @@ import ReferenceCanvas from "./components/ReferenceCanvas.vue";
 import UsersComp from "./components/Users.vue";
 
 import { merge, Observable, combineLatest } from "rxjs";
-import { withLatestFrom, filter, map } from "rxjs/operators";
+import { withLatestFrom, filter, map, tap } from "rxjs/operators";
 import { makeApi } from "./api";
 import { makeFiber, moveFiber, scaleFiber, renderFiber } from "./fibers";
 import type { Fibers } from "./fibers";
 import { makeUser } from "./users";
 import type { Users } from "./users";
 
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 100;
+const DELTA_SPEED = 0.5;
+const INITIAL_ZOOM = 20;
+
 import { ref, defineComponent } from "vue";
 import {
-  makeHole$,
-  applyCanvasHole,
-  makeHoleImageData$,
-  makeHoleScale$,
-  makeMousePressedDelta$,
-  makeMouseOffset$,
+  makeElementZoom$,
+  makeElementRatio$,
+  makeMousePressedMoveVector$,
+  makeMousePressedMoveCoordinates$,
+  makeMouseMoveCoordinates$,
 } from "./reactiveUtils";
+import {
+  makeFocusArea$,
+  makeFocusAreaImageData$,
+  makeFocusAreaScale$,
+  applyScaledImageData,
+} from "./canvas";
 import { notNull } from "./utils";
 import { useAsObservable } from "./hooks/useAsObservable";
 
@@ -62,7 +72,11 @@ export default defineComponent({
     const brushColor = ref("#000");
     const canvasWidth = ref(2000);
     const canvasHeight = ref(2000);
-    const hole = ref({ width: 100, height: 100, left: 2, top: 2 });
+    const focusArea = ref({
+      width: 100,
+      height: 100,
+      coordinates: { x: 2, y: 2 },
+    });
     const brushColor$ = useAsObservable(brushColor);
     const brushSize$ = useAsObservable(brushSize);
 
@@ -73,29 +87,48 @@ export default defineComponent({
       referenceCanvasRef
     ).pipe(filter(notNull));
 
-    const hole$ = makeHole$(referenceCanvas$, canvas$);
-    const scale$ = makeHoleScale$(canvas$, hole$);
-    const holeImageData$ = makeHoleImageData$(referenceCanvas$, hole$);
-    const userPosition$ = makeMouseOffset$(canvas$);
+    const coordinates$ = makeMousePressedMoveCoordinates$(referenceCanvas$);
+    const coordinates2$ = makeMouseMoveCoordinates$(canvas$);
 
-    applyCanvasHole(canvas$, scale$, holeImageData$);
-
-    hole$.subscribe((h) => {
-      hole.value = h;
+    const zoom$ = makeElementZoom$(referenceCanvas$, {
+      max: MAX_ZOOM,
+      min: MIN_ZOOM,
+      speed: DELTA_SPEED,
+      initial: INITIAL_ZOOM,
     });
 
-    userPosition$
-      .pipe(withLatestFrom(hole$, scale$))
-      .subscribe(([pos, { left, top }, scale]) => {
+    const ratio$ = makeElementRatio$(canvas$);
+    const focusArea$ = makeFocusArea$(
+      coordinates$,
+      referenceCanvas$.pipe(map(({ width, height }) => ({ width, height }))),
+      ratio$,
+      zoom$
+    );
+
+    const scale$ = makeFocusAreaScale$(canvas$, focusArea$);
+    const focusAreaImageData$ = makeFocusAreaImageData$(
+      referenceCanvas$,
+      focusArea$
+    );
+
+    applyScaledImageData(canvas$, scale$, focusAreaImageData$);
+
+    focusArea$.subscribe((area) => {
+      focusArea.value = area;
+    });
+
+    coordinates2$
+      .pipe(withLatestFrom(focusArea$, scale$))
+      .subscribe(([pos, { coordinates }, scale]) => {
         api.updateUser(
           makeUser("", {
-            left: pos.left / scale + left,
-            top: pos.top / scale + top,
+            left: pos.x / scale + coordinates.x,
+            top: pos.y / scale + coordinates.y,
           })
         );
       });
 
-    const pressedDelta$ = makeMousePressedDelta$(canvas$);
+    const moveVector$ = makeMousePressedMoveVector$(canvas$);
 
     const {
       fibers$: serverFibers$,
@@ -117,23 +150,29 @@ export default defineComponent({
       renderUsers.value = renderUsers.value.filter((u) => u.id !== id);
     });
 
-    combineLatest([hole$, scale$]).subscribe(([{ left, top }, scale]) => {
-      renderUsers.value = users.value.map((u) =>
-        makeUser(u.id, {
-          left: u.position.left / scale - left,
-          top: u.position.top / scale - top,
-        })
-      );
-    });
+    combineLatest([serverUsers$, focusArea$, scale$]).subscribe(
+      ([_, { coordinates }, scale]) => {
+        renderUsers.value = users.value.map((u) => {
+          const um = makeUser(u.id, {
+            left: (u.position.left - coordinates.x) * scale,
+            top: (u.position.top - coordinates.y) * scale,
+          });
 
-    const localFibers$: Observable<Fibers> = pressedDelta$.pipe(
+          return um;
+        });
+      }
+    );
+
+    const localFibers$: Observable<Fibers> = moveVector$.pipe(
       withLatestFrom(brushColor$, brushSize$),
-      map(([{ x, y, toX, toY }, color, size]) => {
-        return [makeFiber(x, y, toX, toY, color, size)];
+      map(([{ fromX, fromY, toX, toY }, color, size]) => {
+        return [makeFiber(fromX, fromY, toX, toY, color, size)];
       }),
-      withLatestFrom(scale$, hole$),
-      map(([fibers, scale, { left, top }]) =>
-        fibers.map((f) => moveFiber(scaleFiber(f, scale), left, top))
+      withLatestFrom(scale$, focusArea$),
+      map(([fibers, scale, { coordinates }]) =>
+        fibers.map((f) =>
+          moveFiber(scaleFiber(f, scale), coordinates.x, coordinates.y)
+        )
       )
     );
 
@@ -145,10 +184,12 @@ export default defineComponent({
 
     fibers$
       .pipe(
-        withLatestFrom(hole$),
-        map(([fibers, { left, top }]) =>
-          fibers.map((f) => moveFiber(f, -left, -top))
-        ),
+        withLatestFrom(focusArea$, scale$),
+        map(([fibers, { coordinates }, scale]) => {
+          return fibers.map((f) =>
+            scaleFiber(moveFiber(f, -coordinates.x, -coordinates.y), 1 / scale)
+          );
+        }),
         withLatestFrom(canvas$)
       )
       .subscribe(([fibers, canvas]) => {
@@ -178,7 +219,7 @@ export default defineComponent({
       referenceCanvasRef,
       brushColor,
       brushSize,
-      hole,
+      focusArea,
       canvasWidth,
       canvasHeight,
       users: renderUsers,

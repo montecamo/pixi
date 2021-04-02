@@ -1,8 +1,15 @@
 import { concat, of, fromEvent, Observable } from "rxjs";
 import { switchMap, takeUntil, map, scan, startWith } from "rxjs/operators";
 
-import { cut } from "../utils/cut";
 import { fromEvent$, stopDefaults$ } from "./event";
+
+export type MouseCoordinates = { x: number; y: number };
+export type MouseVector = {
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+};
 
 export function makeMousePressedMove$(
   element$: Observable<HTMLElement>
@@ -18,65 +25,50 @@ export function makeMousePressedMove$(
   );
 }
 
-export function makeMousePressedOffset$(
+export function makeMousePressedMoveCoordinates$(
   element$: Observable<HTMLElement>,
   initial: number = 0
-): Observable<{ left: number; top: number }> {
+): Observable<MouseCoordinates> {
   const pressedMove$ = makeMousePressedMove$(element$);
 
   return pressedMove$.pipe(
-    map(({ offsetX, offsetY }) => ({ left: offsetX, top: offsetY })),
+    map(({ offsetX, offsetY }) => ({ x: offsetX, y: offsetY })),
 
-    startWith({ left: initial, top: initial })
+    startWith({ x: initial, y: initial })
   );
 }
 
-export function makeMouseOffset$(
+export function makeMouseMoveCoordinates$(
   element$: Observable<HTMLElement>,
   initial: number = 0
-): Observable<{ left: number; top: number }> {
+): Observable<MouseCoordinates> {
   const move$ = fromEvent$<MouseEvent>(element$, "mousemove");
 
   return move$.pipe(
-    map(({ offsetX, offsetY }) => ({ left: offsetX, top: offsetY })),
+    map(({ offsetX, offsetY }) => ({ x: offsetX, y: offsetY })),
 
-    startWith({ left: initial, top: initial })
+    startWith({ x: initial, y: initial })
   );
 }
 
-export function makeMousePressedDelta$(
+export function makeMousePressedMoveVector$(
   element$: Observable<HTMLElement>
-): Observable<{ x: number; y: number; toX: number; toY: number }> {
+): Observable<MouseVector> {
   const pressedMove$ = makeMousePressedMove$(element$);
 
   return pressedMove$.pipe(
     map(({ movementX, movementY, offsetX, offsetY }) => ({
-      x: offsetX,
-      y: offsetY,
+      fromX: offsetX,
+      fromY: offsetY,
       toX: offsetX - movementX,
       toY: offsetY - movementY,
     }))
   );
 }
 
-export function makeMouseZoom$(
-  element$: Observable<HTMLElement>,
-  options: { max?: number; min?: number; initial?: number; speed?: number }
-): Observable<number> {
-  const { max = 100, min = 0, initial = 0, speed = 0.5 } = options ?? {};
-
-  const wheel$ = fromEvent$<WheelEvent>(element$, "wheel");
-
-  return wheel$.pipe(
-    stopDefaults$(),
-    scan((acc, curr) => cut(min, max)(acc + curr.deltaY * speed), initial),
-    startWith(initial)
-  );
-}
-
 export function makeMouseWheelDelta$(
   element$: Observable<HTMLElement>
-): Observable<{ x: number; y: number }> {
+): Observable<MouseCoordinates> {
   const wheel$ = fromEvent$<WheelEvent>(element$, "wheel");
 
   return wheel$.pipe(
