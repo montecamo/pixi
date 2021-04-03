@@ -143,31 +143,9 @@ export default defineComponent({
       )
     );
 
-    const fibers$ = merge(serverFibers$, localFibers$);
-
     localFibers$.subscribe((fibers) => {
       api.draw(fibers);
     });
-
-    fibers$
-      .pipe(
-        withLatestFrom(focusArea$, scale$),
-        map(([fibers, { coordinates }, scale]) => {
-          return fibers.map((f) =>
-            scaleFiber(moveFiber(f, -coordinates.x, -coordinates.y), 1 / scale)
-          );
-        }),
-        withLatestFrom(canvas$)
-      )
-      .subscribe(([fibers, canvas]) => {
-        const ctx = canvas.getContext("2d");
-
-        if (ctx) {
-          fibers.forEach((f) => {
-            renderFiber(ctx, f);
-          });
-        }
-      });
 
     provide("api", api);
     provide("focusArea$", focusArea$);
