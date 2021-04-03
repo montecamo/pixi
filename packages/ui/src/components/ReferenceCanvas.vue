@@ -14,13 +14,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted } from "vue";
+import { defineComponent, ref, watch, onMounted, inject } from "vue";
+import { useAsObservable } from "../hooks";
+import { renderFiber } from "../fibers";
+import type { Api } from "../api";
+import { notNull } from "../utils";
 
 export default defineComponent({
   props: ["focusArea", "width", "height", "canvasRef"],
   emits: ["update:canvasRef"],
   setup(_, { emit }) {
     const canvas = ref(null);
+    const api = inject<Api>("api");
 
     onMounted(() => {
       // @ts-ignore
@@ -34,6 +39,21 @@ export default defineComponent({
 
       img.src =
         "https://images.unsplash.com/photo-1593642634443-44adaa06623a?ixid=MXwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1525&q=80";
+    });
+
+    onMounted(() => {
+      if (api) {
+        api.fibers$.subscribe((fibers) => {
+          // @ts-ignore
+          const ctx = canvas.value.getContext("2d");
+
+          if (ctx) {
+            fibers.forEach((f) => {
+              renderFiber(ctx, f);
+            });
+          }
+        });
+      }
     });
 
     watch(canvas, (r) => {

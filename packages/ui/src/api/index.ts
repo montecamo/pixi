@@ -46,6 +46,7 @@ export function makeApi(): Api {
     },
     draw: (fibers: Fibers) => {
       socket.emit("fibers", { fibers, roomId });
+      fibers$.next(fibers);
     },
     fibers$,
     users$,

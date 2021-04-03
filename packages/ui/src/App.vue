@@ -169,18 +169,6 @@ export default defineComponent({
         }
       });
 
-    fibers$
-      .pipe(withLatestFrom(referenceCanvas$))
-      .subscribe(([fibers, referenceCanvas]) => {
-        const ctx = referenceCanvas.getContext("2d");
-
-        if (ctx) {
-          fibers.forEach((f) => {
-            renderFiber(ctx, f);
-          });
-        }
-      });
-
     provide("api", api);
     provide("focusArea$", focusArea$);
     provide("scale$", scale$);
