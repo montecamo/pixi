@@ -12,7 +12,7 @@
     :focusArea="focusArea"
     v-model:canvas-ref="referenceCanvasRef"
   />
-  <UsersComp :users="users" />
+  <UsersComp />
 </template>
 
 <script lang="ts">
@@ -27,15 +27,13 @@ import { withLatestFrom, filter, map, tap } from "rxjs/operators";
 import { makeApi } from "./api";
 import { makeFiber, moveFiber, scaleFiber, renderFiber } from "./fibers";
 import type { Fibers } from "./fibers";
-import { makeUser } from "./users";
-import type { Users } from "./users";
 
 const MIN_ZOOM = 10;
 const MAX_ZOOM = 100;
 const DELTA_SPEED = 0.5;
 const INITIAL_ZOOM = 20;
 
-import { ref, defineComponent } from "vue";
+import { ref, defineComponent, provide } from "vue";
 import {
   makeElementZoom$,
   makeElementRatio$,
@@ -49,6 +47,7 @@ import {
   makeFocusAreaScale$,
   applyScaledImageData,
 } from "./canvas";
+import { makeUser } from "./users";
 import { notNull } from "./utils";
 import { useAsObservable } from "./hooks/useAsObservable";
 
@@ -65,8 +64,6 @@ export default defineComponent({
     const canvasRef = ref(null);
     const referenceCanvasRef = ref(null);
     const api = makeApi();
-    const users = ref<Users>([]);
-    const renderUsers = ref<Users>([]);
 
     const brushSize = ref(2);
     const brushColor = ref("#000");
@@ -130,38 +127,8 @@ export default defineComponent({
 
     const moveVector$ = makeMousePressedMoveVector$(canvas$);
 
-    const {
-      fibers$: serverFibers$,
-      users$: serverUsers$,
-      usersDisconnected$,
-    } = api.joinRoom(window.location.pathname.slice(1));
-
-    serverUsers$.subscribe((user) => {
-      const filtered = users.value.filter((u) => u.id !== user.id);
-
-      filtered.push(user);
-
-      users.value = filtered;
-      renderUsers.value = filtered;
-    });
-
-    usersDisconnected$.subscribe((id) => {
-      users.value = users.value.filter((u) => u.id !== id);
-      renderUsers.value = renderUsers.value.filter((u) => u.id !== id);
-    });
-
-    combineLatest([serverUsers$, focusArea$, scale$]).subscribe(
-      ([_, { coordinates }, scale]) => {
-        renderUsers.value = users.value.map((u) => {
-          const um = makeUser(u.id, {
-            left: (u.position.left - coordinates.x) * scale,
-            top: (u.position.top - coordinates.y) * scale,
-          });
-
-          return um;
-        });
-      }
-    );
+    const { fibers$: serverFibers$ } = api;
+    api.joinRoom(window.location.pathname.slice(1));
 
     const localFibers$: Observable<Fibers> = moveVector$.pipe(
       withLatestFrom(brushColor$, brushSize$),
@@ -214,6 +181,10 @@ export default defineComponent({
         }
       });
 
+    provide("api", api);
+    provide("focusArea$", focusArea$);
+    provide("scale$", scale$);
+
     return {
       canvasRef,
       referenceCanvasRef,
@@ -222,7 +193,7 @@ export default defineComponent({
       focusArea,
       canvasWidth,
       canvasHeight,
-      users: renderUsers,
+      api,
     };
   },
 });

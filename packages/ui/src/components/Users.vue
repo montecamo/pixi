@@ -11,9 +11,58 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, inject, ref, onMounted } from "vue";
+import { autorun } from "mobx";
+import { BehaviorSubject, combineLatest, Observable } from "rxjs";
+
+import { UsersStore, makeUser } from "../users";
+import type { FocusArea } from "../canvas";
+import type { Users } from "../users";
+import type { Api } from "../api";
+
 export default defineComponent({
-  props: ["users"],
+  inject: ["api"],
+  setup() {
+    const api = inject<Api>("api");
+    const focusArea$ = inject<Observable<FocusArea>>("focusArea$");
+    const scale$ = inject<Observable<number>>("scale$");
+
+    const store = new UsersStore();
+
+    const users = ref<Users>(store.users);
+
+    onMounted(() => {
+      if (api && focusArea$ && scale$) {
+        api.usersDisconnected$.subscribe((id) => {
+          store.deleteUser(id);
+        });
+
+        api.users$.subscribe((user) => {
+          store.deleteUser(user.id);
+          store.addUser(user);
+        });
+
+        const users$ = new BehaviorSubject<Users>(users.value);
+
+        autorun(() => {
+          users$.next(store.users);
+        });
+
+        combineLatest([users$, focusArea$, scale$]).subscribe(
+          ([serverUsers, { coordinates }, scale]) => {
+            users.value = serverUsers.map((u) =>
+              makeUser(u.id, {
+                left: (u.position.left - coordinates.x) * scale,
+                top: (u.position.top - coordinates.y) * scale,
+              })
+            );
+          }
+        );
+      }
+    });
+
+    return { users };
+  },
 });
 </script>
 
