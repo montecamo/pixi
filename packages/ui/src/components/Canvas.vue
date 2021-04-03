@@ -4,11 +4,11 @@
 
 <script lang="ts">
 import { ref, watch, defineComponent, inject, onMounted } from "vue";
-import type { Api } from "../api";
 import type { FocusArea } from "../canvas";
 import { Observable } from "rxjs";
 import { withLatestFrom, map } from "rxjs/operators";
 import { scaleFiber, moveFiber, renderFiber } from "../fibers";
+import type { Fibers } from "../fibers";
 
 export default defineComponent({
   props: ["brushSize", "brushColor", "actions", "canvasRef"],
@@ -18,7 +18,7 @@ export default defineComponent({
     const width = ref(window.innerWidth);
     const height = ref(window.innerHeight);
 
-    const api = inject<Api>("api");
+    const fibers$ = inject<Observable<Fibers>>("fibers$");
     const focusArea$ = inject<Observable<FocusArea>>("focusArea$");
     const scale$ = inject<Observable<number>>("scale$");
 
@@ -28,8 +28,8 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (api && focusArea$ && scale$) {
-        api.fibers$
+      if (fibers$ && focusArea$ && scale$) {
+        fibers$
           .pipe(
             withLatestFrom(focusArea$, scale$),
             map(([fibers, { coordinates }, scale]) => {

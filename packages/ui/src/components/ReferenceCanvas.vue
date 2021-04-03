@@ -15,17 +15,16 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, onMounted, inject } from "vue";
-import { useAsObservable } from "../hooks";
 import { renderFiber } from "../fibers";
-import type { Api } from "../api";
-import { notNull } from "../utils";
+import type { Fibers } from "../fibers";
+import { Observable } from "rxjs";
 
 export default defineComponent({
   props: ["focusArea", "width", "height", "canvasRef"],
   emits: ["update:canvasRef"],
   setup(_, { emit }) {
     const canvas = ref(null);
-    const api = inject<Api>("api");
+    const fibers$ = inject<Observable<Fibers>>("fibers$");
 
     onMounted(() => {
       // @ts-ignore
@@ -42,8 +41,8 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (api) {
-        api.fibers$.subscribe((fibers) => {
+      if (fibers$) {
+        fibers$.subscribe((fibers) => {
           // @ts-ignore
           const ctx = canvas.value.getContext("2d");
 

@@ -40,6 +40,7 @@ import {
   makeMousePressedMoveVector$,
   makeMousePressedMoveCoordinates$,
   makeMouseMoveCoordinates$,
+  makeExtendableObservable$,
 } from "./reactiveUtils";
 import {
   makeFocusArea$,
@@ -76,6 +77,7 @@ export default defineComponent({
     });
     const brushColor$ = useAsObservable(brushColor);
     const brushSize$ = useAsObservable(brushSize);
+    const fibers$ = makeExtendableObservable$<Fibers>([]);
 
     const canvas$ = useAsObservable<HTMLCanvasElement | null>(canvasRef).pipe(
       filter(notNull)
@@ -127,7 +129,6 @@ export default defineComponent({
 
     const moveVector$ = makeMousePressedMoveVector$(canvas$);
 
-    const { fibers$: serverFibers$ } = api;
     api.joinRoom(window.location.pathname.slice(1));
 
     const localFibers$: Observable<Fibers> = moveVector$.pipe(
@@ -143,6 +144,9 @@ export default defineComponent({
       )
     );
 
+    fibers$.attachSource(api.fibers$);
+    fibers$.attachSource(localFibers$);
+
     localFibers$.subscribe((fibers) => {
       api.draw(fibers);
     });
@@ -150,6 +154,7 @@ export default defineComponent({
     provide("api", api);
     provide("focusArea$", focusArea$);
     provide("scale$", scale$);
+    provide("fibers$", fibers$.observable$);
 
     return {
       canvasRef,
