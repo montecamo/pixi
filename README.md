@@ -32,7 +32,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 - [x] Fix users position normalization
 - [x] Abstract position normalization
-- [ ] Add room joining modal
+- [x] Add room joining modal
 - [ ] Add all users view
 - [ ] Generate random nicknames to users
 - [ ] Better user's cursor view
@@ -42,4 +42,5 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [ ] Split global utilities and types to packages
 - [ ] Add mobx stores or raw rxjs stores
 - [ ] Add react, svelte and angular uis
-- [ ] Beautify controls
+- [x] Beautify controls
+- [ ] Consider using WebRTC
