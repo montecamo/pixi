@@ -31,6 +31,7 @@ export default defineComponent({
     const referenceCanvasScale = inject("referenceCanvasScale");
 
     onMounted(() => {
+      emit("update:canvasRef", canvas.value);
       if (fibers$) {
         fibers$.subscribe((fibers) => {
           // @ts-ignore
@@ -43,10 +44,6 @@ export default defineComponent({
           }
         });
       }
-    });
-
-    watch(canvas, (r) => {
-      emit("update:canvasRef", r);
     });
 
     return { canvas, scale: referenceCanvasScale };

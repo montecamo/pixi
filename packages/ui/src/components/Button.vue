@@ -1,5 +1,9 @@
 <template>
-  <button class="button" :class="{ [intent]: true, [classs]: true }">
+  <button
+    @click="handleClick"
+    class="button"
+    :class="{ [intent]: true, [classs]: true }"
+  >
     <slot></slot>
   </button>
 </template>
@@ -9,6 +13,12 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   props: ["intent", "classs"],
+  emits: ["click"],
+  setup(_, { emit }) {
+    const handleClick = (e: MouseEvent) => emit("click", e);
+
+    return { handleClick };
+  },
 });
 </script>
 

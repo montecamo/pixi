@@ -3,6 +3,17 @@
 </template>
 
 <script lang="ts">
+//<canvas
+// class="canvas"
+// :width="width * 2"
+// :height="height * 2"
+// :style="{
+// width: `${width}px`,
+// height: `${height}px`,
+// }"
+// ref="canvas"
+// />
+
 import { ref, watch, defineComponent, inject, onMounted } from "vue";
 import type { FocusArea } from "../canvas";
 import { Observable } from "rxjs";
@@ -28,6 +39,8 @@ export default defineComponent({
     });
 
     onMounted(() => {
+      emit("update:canvasRef", canvas.value);
+
       if (fibers$ && focusArea$ && scale$) {
         fibers$
           .pipe(
@@ -53,8 +66,6 @@ export default defineComponent({
           });
       }
     });
-
-    watch(canvas, (r) => emit("update:canvasRef", r));
 
     return { canvas, width, height };
   },

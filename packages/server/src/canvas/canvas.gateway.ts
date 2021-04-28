@@ -31,6 +31,8 @@ export class CanvasGateway {
     const canvas = await this.canvasService.getCanvas(roomId);
 
     if (canvas) {
+      client.emit('roomJoined', roomId);
+
       client.emit('fibers', canvas.fibers);
 
       client.join(roomId);
@@ -69,7 +71,7 @@ export class CanvasGateway {
   createRoom(client: Socket, id = uuidv1()) {
     this.canvasService.create({ id: id, fibers: [] });
 
-    client.emit('roomCreated', { id });
+    client.emit('roomCreated', id);
 
     this.joinRoom(client, id);
   }

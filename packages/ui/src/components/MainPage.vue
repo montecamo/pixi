@@ -16,10 +16,10 @@
           <input class="code-cell" />
           <input class="code-cell" />
         </div>
-        <Button intent="primary">Join room</Button>
+        <Button @click="handleJoin" intent="primary">Join room</Button>
       </div>
       <div class="title-text or">Or</div>
-      <Button intent="secondary">Create a new one</Button>
+      <Button @click="handleCreate" intent="secondary">Create a new one</Button>
     </div>
     <div class="right">
       <img class="image" src="../../public/painting.jpg" />
@@ -29,19 +29,34 @@
 
 <script lang="ts">
 import Button from "./Button.vue";
-import { defineComponent } from "vue";
+import type { Api } from "../api";
+import { defineComponent, inject, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: { Button },
-  emits: ["update:brushSize"],
   props: ["logo"],
-  data() {
-    return { radiuses: [8, 16, 24, 32, 40] };
-  },
-  methods: {
-    changeBrushSize(size: number) {
-      this.$emit("update:brushSize", size);
-    },
+  setup() {
+    const router = useRouter();
+    const api = inject<Api>("api") as Api;
+
+    const handleJoin = () => {
+      api.joinRoom("ABE9");
+    };
+
+    const handleCreate = () => {
+      api.createRoom();
+    };
+
+    const subscription = api.roomJoined$.subscribe((id) => {
+      router.push(`/${id}`);
+    });
+
+    onUnmounted(() => {
+      subscription.unsubscribe();
+    });
+
+    return { handleJoin, handleCreate };
   },
 });
 </script>

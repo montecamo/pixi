@@ -25,7 +25,7 @@ export function makeElementRatio$(
           observer.observe(el);
 
           return () => {
-            observer.unobserve();
+            observer.unobserve(el);
           };
         })
     )

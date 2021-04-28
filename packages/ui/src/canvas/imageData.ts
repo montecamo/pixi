@@ -26,6 +26,10 @@ export function applyScaledImageData(
 
       tempCanvas.getContext("2d")?.putImageData(data, 0, 0);
       ctx?.scale(scale, scale);
+      if (ctx) {
+        ctx.imageSmoothingQuality = "high";
+      }
+
       ctx?.drawImage(tempCanvas, 0, 0);
 
       ctx?.restore();
