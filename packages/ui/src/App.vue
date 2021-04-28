@@ -5,7 +5,7 @@
     v-model:canvas-ref="canvasRef"
   />
   <BrushSize v-model:brush-size="brushSize" />
-  <BrushColor v-model:brush-color="brushColor" />
+  <ColorPicker v-model:value="brushColor" />
   <ReferenceCanvas
     :width="canvasWidth"
     :height="canvasHeight"
@@ -13,14 +13,16 @@
     v-model:canvas-ref="referenceCanvasRef"
   />
   <UsersComp />
+  <Control v-model:value="val" step="10" title="HARDNESS" min="0" max="100" />
+  <Dock />
 </template>
 
 <script lang="ts">
 import Canvas from "./components/Canvas.vue";
-import BrushSize from "./components/BrushSize.vue";
-import BrushColor from "./components/BrushColor.vue";
 import ReferenceCanvas from "./components/ReferenceCanvas.vue";
 import UsersComp from "./components/Users.vue";
+import MainPage from "./components/MainPage.vue";
+import Dock from "./components/ControlsDock";
 
 import { merge, Observable, combineLatest } from "rxjs";
 import { withLatestFrom, filter, map, tap } from "rxjs/operators";
@@ -32,6 +34,7 @@ const MIN_ZOOM = 10;
 const MAX_ZOOM = 100;
 const DELTA_SPEED = 0.5;
 const INITIAL_ZOOM = 20;
+const REFERENCE_CANVAS_SCALE = 0.1;
 
 import { ref, defineComponent, provide } from "vue";
 import {
@@ -56,15 +59,15 @@ export default defineComponent({
   name: "App",
   components: {
     Canvas,
-    BrushSize,
-    BrushColor,
     ReferenceCanvas,
     UsersComp,
+    Dock,
   },
   setup() {
     const canvasRef = ref(null);
     const referenceCanvasRef = ref(null);
     const api = makeApi();
+    const val = ref(0);
 
     const brushSize = ref(2);
     const brushColor = ref("#000");
@@ -86,7 +89,14 @@ export default defineComponent({
       referenceCanvasRef
     ).pipe(filter(notNull));
 
-    const coordinates$ = makeMousePressedMoveCoordinates$(referenceCanvas$);
+    const coordinates$ = makeMousePressedMoveCoordinates$(
+      referenceCanvas$
+    ).pipe(
+      map(({ x, y }) => ({
+        x: x / REFERENCE_CANVAS_SCALE,
+        y: y / REFERENCE_CANVAS_SCALE,
+      }))
+    );
     const coordinates2$ = makeMouseMoveCoordinates$(canvas$);
 
     const zoom$ = makeElementZoom$(referenceCanvas$, {
@@ -155,6 +165,15 @@ export default defineComponent({
     provide("focusArea$", focusArea$);
     provide("scale$", scale$);
     provide("fibers$", fibers$.observable$);
+    provide("referenceCanvasScale", REFERENCE_CANVAS_SCALE);
+    provide("brushSize", brushSize);
+    provide("brushColor", brushColor);
+    provide("updateBrushSize", (val: number) => {
+      brushSize.value = val;
+    });
+    provide("updateBrushColor", (val: string) => {
+      brushColor.value = val;
+    });
 
     return {
       canvasRef,
@@ -165,12 +184,18 @@ export default defineComponent({
       canvasWidth,
       canvasHeight,
       api,
+      val,
     };
   },
 });
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap");
+
+@import "./variables.css";
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

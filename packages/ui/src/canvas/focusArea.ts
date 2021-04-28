@@ -18,7 +18,6 @@ export function makeFocusAreaScale$(
 ): Observable<number> {
   const scale$ = combineLatest([focusArea$, canvas$]).pipe(
     map(([{ width }, canvas]) => {
-      console.warn("w", canvas.width, width);
       return canvas.width / width;
     })
   );

@@ -1,12 +1,15 @@
 <template>
-  <div class="wrapper">
+  <div
+    class="wrapper"
+    :style="{ width: `${width * scale}px`, height: `${height * scale}px` }"
+  >
     <canvas :width="width" :height="height" class="canvas" ref="canvas" />
     <div
       :style="{
-        left: `${focusArea.coordinates.x - 1}px`,
-        top: `${focusArea.coordinates.y - 1}px`,
-        width: `${focusArea.width}px`,
-        height: `${focusArea.height}px`,
+        left: `${focusArea.coordinates.x * scale}px`,
+        top: `${focusArea.coordinates.y * scale}px`,
+        width: `${focusArea.width * scale}px`,
+        height: `${focusArea.height * scale}px`,
       }"
       class="focus-area"
     ></div>
@@ -25,20 +28,7 @@ export default defineComponent({
   setup(_, { emit }) {
     const canvas = ref(null);
     const fibers$ = inject<Observable<Fibers>>("fibers$");
-
-    onMounted(() => {
-      // @ts-ignore
-      var ctx = canvas.value.getContext("2d");
-
-      var img = new Image();
-      img.onload = function () {
-        ctx.drawImage(img, 0, 0); // Or at whatever offset you like
-      };
-      img.crossOrigin = "Anonymous";
-
-      img.src =
-        "https://images.unsplash.com/photo-1593642634443-44adaa06623a?ixid=MXwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1525&q=80";
-    });
+    const referenceCanvasScale = inject("referenceCanvasScale");
 
     onMounted(() => {
       if (fibers$) {
@@ -59,7 +49,7 @@ export default defineComponent({
       emit("update:canvasRef", r);
     });
 
-    return { canvas };
+    return { canvas, scale: referenceCanvasScale };
   },
 });
 </script>
@@ -67,19 +57,20 @@ export default defineComponent({
 <style scoped>
 .wrapper {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.1);
+  top: 32px;
+  right: 32px;
 }
 
 .canvas {
-  border: 10px solid lightblue;
+  border: 1px solid #fff;
+  width: 100%;
+  height: 100%;
   position: relative;
   overflow: auto;
 }
 
 .focus-area {
-  border: 10px solid lightcoral;
+  border: 1px solid var(--primary-color);
   position: absolute;
   pointer-events: none;
 }

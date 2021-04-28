@@ -1,5 +1,5 @@
 <template>
-  <canvas :width="width" :height="height" ref="canvas" />
+  <canvas class="canvas" :width="width" :height="height" ref="canvas" />
 </template>
 
 <script lang="ts">
@@ -61,4 +61,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.canvas {
+  background: var(--background-color);
+}
+</style>
