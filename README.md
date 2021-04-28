@@ -30,8 +30,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 # Roadmap
 
-- [ ] Fix users position normalization
-- [ ] Abstract position normalization
+- [x] Fix users position normalization
+- [x] Abstract position normalization
 - [ ] Add room joining modal
 - [ ] Add all users view
 - [ ] Generate random nicknames to users
