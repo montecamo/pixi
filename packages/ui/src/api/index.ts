@@ -1,4 +1,4 @@
-import { Observable, ReplaySubject } from "rxjs";
+import { Observable, Subject, ReplaySubject } from "rxjs";
 import io from "socket.io-client";
 
 import type { User } from "@/users";
@@ -20,7 +20,7 @@ export function makeApi(): Api {
   const fibers$ = new ReplaySubject<Fibers>(1);
   const users$ = new ReplaySubject<User>(1);
   const usersDisconnected$ = new ReplaySubject<string>(1);
-  const roomJoined$ = new ReplaySubject<string>(1);
+  const roomJoined$ = new Subject<string>();
 
   let roomId = "";
 

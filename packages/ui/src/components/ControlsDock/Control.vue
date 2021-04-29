@@ -28,7 +28,6 @@ export default defineComponent({
       const newValue = Math.round(
         clamp(value.value - e.deltaY * step.value, min.value, max.value)
       );
-      console.warn("new", newValue);
 
       emit("update", newValue);
     };
