@@ -41,14 +41,14 @@ export default defineComponent({
     const api = inject<Api>("api") as Api;
 
     const handleJoin = () => {
-      api.joinRoom("ABE9");
+      router.push(`/AMA9`);
     };
 
     const handleCreate = () => {
       api.createRoom();
     };
 
-    const subscription = api.roomJoined$.subscribe((id) => {
+    const subscription = api.roomCreated$.subscribe((id) => {
       router.push(`/${id}`);
     });
 

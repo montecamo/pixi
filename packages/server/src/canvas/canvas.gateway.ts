@@ -72,8 +72,6 @@ export class CanvasGateway {
     this.canvasService.create({ id: id, fibers: [] });
 
     client.emit('roomCreated', id);
-
-    this.joinRoom(client, id);
   }
 
   @SubscribeMessage('users')

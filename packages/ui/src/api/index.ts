@@ -6,21 +6,22 @@ import type { Fibers } from "@/fibers";
 
 export type Api = {
   joinRoom: (id: string) => void;
+  getFibers: () => void;
   draw: (fibers: Fibers) => void;
   updateUser: (user: User) => void;
   createRoom: () => void;
   fibers$: Observable<Fibers>;
   users$: Observable<User>;
   usersDisconnected$: Observable<string>;
-  roomJoined$: Observable<string>;
+  roomCreated$: Observable<string>;
 };
 
 export function makeApi(): Api {
   const socket = io("ws://localhost:3001");
-  const fibers$ = new ReplaySubject<Fibers>(1);
-  const users$ = new ReplaySubject<User>(1);
-  const usersDisconnected$ = new ReplaySubject<string>(1);
-  const roomJoined$ = new Subject<string>();
+  const fibers$ = new Subject<Fibers>();
+  const users$ = new Subject<User>();
+  const usersDisconnected$ = new Subject<string>();
+  const roomCreated$ = new Subject<string>();
 
   let roomId = "";
 
@@ -35,22 +36,21 @@ export function makeApi(): Api {
     users$.next(user);
   });
   socket.on("roomCreated", (id: string) => {
-    roomJoined$.next(id);
+    roomCreated$.next(id);
   });
   socket.on("roomJoined", (id: string) => {
-    roomJoined$.next(id);
+    roomId = id;
   });
   socket.on("userDisconnected", (uid: string) => {
     usersDisconnected$.next(uid);
   });
 
-  roomJoined$.subscribe((id) => {
-    roomId = id;
-  });
-
   return {
     joinRoom: (id) => {
       socket.emit("joinRoom", id);
+    },
+    getFibers: () => {
+      socket.emit("getFibers", roomId);
     },
     createRoom: () => {
       socket.emit("createRoom");
@@ -58,12 +58,12 @@ export function makeApi(): Api {
     updateUser: (user) => {
       socket.emit("users", { roomId, ...user });
     },
-    draw: (fibers: Fibers) => {
+    draw: (fibers) => {
       socket.emit("fibers", { fibers, roomId });
     },
     fibers$,
     users$,
     usersDisconnected$,
-    roomJoined$,
+    roomCreated$,
   };
 }
