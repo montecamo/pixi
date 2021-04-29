@@ -18,13 +18,12 @@
 import Canvas from "./components/Canvas.vue";
 import ReferenceCanvas from "./components/ReferenceCanvas.vue";
 import UsersComp from "./components/Users.vue";
-import MainPage from "./components/MainPage.vue";
 import Dock from "./components/ControlsDock";
 
-import { merge, Observable, combineLatest } from "rxjs";
-import { withLatestFrom, filter, map, tap } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { withLatestFrom, filter, map } from "rxjs/operators";
 import type { Api } from "./api";
-import { makeFiber, moveFiber, scaleFiber, renderFiber } from "./fibers";
+import { makeFiber, moveFiber, scaleFiber } from "./fibers";
 import type { Fibers } from "./fibers";
 
 const MIN_ZOOM = 10;
@@ -76,6 +75,7 @@ export default defineComponent({
       height: 100,
       coordinates: { x: 2, y: 2 },
     });
+
     const brushColor$ = useAsObservable(brushColor);
     const brushSize$ = useAsObservable(brushSize);
     const fibers$ = makeExtendableObservable$<Fibers>([]);
@@ -95,7 +95,6 @@ export default defineComponent({
         y: y / REFERENCE_CANVAS_SCALE,
       }))
     );
-    const coordinates2$ = makeMouseMoveCoordinates$(canvas$);
 
     const zoom$ = makeElementZoom$(referenceCanvas$, {
       max: MAX_ZOOM,
@@ -123,17 +122,6 @@ export default defineComponent({
     focusArea$.subscribe((area) => {
       focusArea.value = area;
     });
-
-    coordinates2$
-      .pipe(withLatestFrom(focusArea$, scale$))
-      .subscribe(([pos, { coordinates }, scale]) => {
-        api.updateUser(
-          makeUser("", {
-            left: pos.x / scale + coordinates.x,
-            top: pos.y / scale + coordinates.y,
-          })
-        );
-      });
 
     const moveVector$ = makeMousePressedMoveVector$(canvas$);
 
@@ -171,6 +159,7 @@ export default defineComponent({
     provide("updateBrushColor", (val: string) => {
       brushColor.value = val;
     });
+    provide("canvas$", canvas$);
 
     return {
       canvasRef,
