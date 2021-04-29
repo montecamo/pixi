@@ -35,19 +35,18 @@ export default defineComponent({
 <style scoped>
 .colors {
   display: flex;
-  padding: 8px 4px;
 
   align-items: center;
   justify-content: space-around;
 
-  height: 60px;
-
-  border-top: 1px solid var(--background-color-grey);
+  padding: var(--control-padding) calc(var(--control-padding) / 2);
+  height: var(--control-height);
+  border-top: var(--control-border);
   cursor: pointer;
 }
 
 .color {
-  margin: 0 4px;
+  margin: 0 calc(var(--control-padding) / 2);
 
   width: 36px;
   height: 36px;

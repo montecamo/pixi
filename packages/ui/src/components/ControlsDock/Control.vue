@@ -45,14 +45,14 @@ export default defineComponent({
 
   align-items: flex-start;
 
-  padding: 8px;
-  height: 60px;
-  border-top: 1px solid var(--background-color-grey);
+  padding: var(--control-padding);
+  height: var(--control-height);
+  border-top: var(--control-border);
   cursor: pointer;
 }
 
 .control:hover {
-  background: rgba(243, 244, 246, 0.1);
+  background: var(--control-hover-background);
 }
 
 .title,

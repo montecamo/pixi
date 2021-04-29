@@ -59,6 +59,11 @@ export default defineComponent({
   left: 0;
 
   display: flex;
+
+  --control-padding: 8px;
+  --control-height: 60px;
+  --control-border: 1px solid var(--background-color-grey);
+  --control-hover-background: rgba(243, 244, 246, 0.1);
 }
 
 .spacer {
@@ -67,3 +72,5 @@ export default defineComponent({
   background: var(--background-color-grey);
 }
 </style>
+
+<style></style>
