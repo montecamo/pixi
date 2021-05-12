@@ -11,14 +11,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, onMounted } from "vue";
-import { autorun } from "mobx";
-import { BehaviorSubject, combineLatest, Observable } from "rxjs";
+import { defineComponent, inject, onMounted } from "vue";
+import { combineLatest, Observable } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";
+import { useAsRef } from "@/hooks";
 
-import { UsersStore, makeUser } from "@/users";
+import {
+  users$,
+  getUsers,
+  deleteUser,
+  addUser,
+  makeUser,
+} from "@/stores/users";
 import type { FocusArea } from "@/canvas";
-import type { Users } from "@/users";
 import type { Api } from "@/api";
 
 import { makeMouseMoveCoordinates$ } from "@/reactiveUtils";
@@ -44,25 +49,17 @@ export default defineComponent({
         );
       });
 
-    const store = new UsersStore();
-
-    const users = ref<Users>(store.users);
+    const users = useAsRef(users$, getUsers());
 
     onMounted(() => {
       if (api && focusArea$ && scale$) {
         api.usersDisconnected$.subscribe((id) => {
-          store.deleteUser(id);
+          deleteUser(id);
         });
 
         api.users$.subscribe((user) => {
-          store.deleteUser(user.id);
-          store.addUser(user);
-        });
-
-        const users$ = new BehaviorSubject<Users>(users.value);
-
-        autorun(() => {
-          users$.next(store.users);
+          deleteUser(user.id);
+          addUser(user);
         });
 
         combineLatest([users$, focusArea$, scale$]).subscribe(

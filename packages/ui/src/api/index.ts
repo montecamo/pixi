@@ -1,7 +1,7 @@
 import { Observable, Subject, ReplaySubject } from "rxjs";
 import io from "socket.io-client";
 
-import type { User } from "@/users";
+import type { User } from "@/stores/users";
 import type { Fibers } from "@/fibers";
 
 export type Api = {
