@@ -1,12 +1,8 @@
 <template>
-  <Canvas
-    :brushSize="brushSize"
-    :brushColor="brushColor"
-    v-model:canvas-ref="canvasRef"
-  />
+  <Canvas v-model:canvas-ref="canvasRef" />
   <ReferenceCanvas
-    :width="canvasWidth"
-    :height="canvasHeight"
+    :width="canvasSize"
+    :height="canvasSize"
     :focusArea="focusArea"
     v-model:canvas-ref="referenceCanvasRef"
   />
@@ -20,12 +16,13 @@ import ReferenceCanvas from "./components/ReferenceCanvas.vue";
 import UsersComp from "./components/Users.vue";
 import Dock from "./components/ControlsDock";
 
-import { Observable } from "rxjs";
+import { Observable, BehaviorSubject } from "rxjs";
 import { withLatestFrom, filter, map } from "rxjs/operators";
 import type { Api } from "./api";
 import { makeFiber, moveFiber, scaleFiber } from "./fibers";
 import type { Fibers } from "./fibers";
 
+const CANVAS_SIZE = 2000;
 const MIN_ZOOM = 10;
 const MAX_ZOOM = 100;
 const DELTA_SPEED = 0.5;
@@ -38,7 +35,6 @@ import {
   makeElementRatio$,
   makeMousePressedMoveVector$,
   makeMousePressedMoveCoordinates$,
-  makeMouseMoveCoordinates$,
   makeExtendableObservable$,
 } from "./reactiveUtils";
 import {
@@ -47,7 +43,6 @@ import {
   makeFocusAreaScale$,
   applyScaledImageData,
 } from "./canvas";
-import { makeUser } from "./users";
 import { notNull } from "./utils";
 import { useAsObservable } from "./hooks/useAsObservable";
 import { useRoute } from "vue-router";
@@ -60,16 +55,14 @@ export default defineComponent({
     Dock,
   },
   setup() {
-    const canvasRef = ref(null);
-    const referenceCanvasRef = ref(null);
     const api = inject<Api>("api") as Api;
-    const val = ref(0);
     const route = useRoute();
 
+    const canvasRef = ref(null);
+    const referenceCanvasRef = ref(null);
+    const val = ref(0);
     const brushSize = ref(24);
     const brushColor = ref("#fff");
-    const canvasWidth = ref(2000);
-    const canvasHeight = ref(2000);
     const focusArea = ref({
       width: 100,
       height: 100,
@@ -106,7 +99,7 @@ export default defineComponent({
     const ratio$ = makeElementRatio$(canvas$);
     const focusArea$ = makeFocusArea$(
       coordinates$,
-      referenceCanvas$.pipe(map(({ width, height }) => ({ width, height }))),
+      new BehaviorSubject({ width: CANVAS_SIZE, height: CANVAS_SIZE }),
       ratio$,
       zoom$
     );
@@ -124,8 +117,6 @@ export default defineComponent({
     });
 
     const moveVector$ = makeMousePressedMoveVector$(canvas$);
-
-    api.joinRoom(route.params.id as string);
 
     const localFibers$: Observable<Fibers> = moveVector$.pipe(
       withLatestFrom(brushColor$, brushSize$),
@@ -147,6 +138,8 @@ export default defineComponent({
       api.draw(fibers);
     });
 
+    api.joinRoom(route.params.id as string);
+
     provide("focusArea$", focusArea$);
     provide("scale$", scale$);
     provide("fibers$", fibers$.observable$);
@@ -164,11 +157,8 @@ export default defineComponent({
     return {
       canvasRef,
       referenceCanvasRef,
-      brushColor,
-      brushSize,
       focusArea,
-      canvasWidth,
-      canvasHeight,
+      canvasSize: CANVAS_SIZE,
       api,
       val,
     };

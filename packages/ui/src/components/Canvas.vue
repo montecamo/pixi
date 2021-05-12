@@ -22,12 +22,14 @@ import { scaleFiber, moveFiber, renderFiber } from "../fibers";
 import type { Fibers } from "../fibers";
 
 export default defineComponent({
-  props: ["brushSize", "brushColor", "actions", "canvasRef"],
+  props: ["canvasRef"],
   emit: ["update:canvasRef"],
   setup(_, { emit }) {
     const canvas = ref(null);
     const width = ref(window.innerWidth);
     const height = ref(window.innerHeight);
+    const brushSize = inject<number>("brushSize")!;
+    const brushColor = inject<string>("brushColor")!;
 
     const fibers$ = inject<Observable<Fibers>>("fibers$");
     const focusArea$ = inject<Observable<FocusArea>>("focusArea$");
@@ -67,7 +69,7 @@ export default defineComponent({
       }
     });
 
-    return { canvas, width, height };
+    return { canvas, width, height, brushSize, brushColor };
   },
 });
 </script>

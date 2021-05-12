@@ -41,6 +41,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [ ] Optimise everything with throttling
 - [ ] Split global utilities and types to packages
 - [ ] Add mobx stores or raw rxjs stores
-- [ ] Add react, svelte and angular uis
 - [x] Beautify controls
 - [ ] Consider using WebRTC
+- [ ] Support HighDPI
+- [ ] Add react, svelte and angular uis
+- [ ] Make api return promises
