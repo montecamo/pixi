@@ -28,8 +28,8 @@
 </template>
 
 <script lang="ts">
-import Button from "./Button.vue";
-import type { Api } from "../api";
+import Button from "@/components/Button.vue";
+import type { Api } from "@/api";
 import { defineComponent, inject, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 

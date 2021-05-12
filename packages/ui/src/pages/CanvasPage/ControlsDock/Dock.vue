@@ -9,31 +9,13 @@
       :value="size"
     />
     <div class="spacer"></div>
-    <Control
-      title="SIZE"
-      min="0"
-      max="48"
-      step="1"
-      @update="updateSize"
-      :value="size"
-    />
-    <div class="spacer"></div>
-    <Control
-      title="SIZE"
-      min="0"
-      max="48"
-      step="1"
-      @update="updateSize"
-      :value="size"
-    />
-    <div class="spacer"></div>
     <ColorPicker @update="updateColor" :value="color" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import Control from "./Control.vue";
+import Control from "@/components/Control.vue";
 import ColorPicker from "./ColorPicker.vue";
 
 export default defineComponent({

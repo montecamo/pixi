@@ -18,8 +18,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, onMounted, inject } from "vue";
-import { renderFiber } from "../fibers";
-import type { Fibers } from "../fibers";
+import { renderFiber } from "@/fibers";
+import type { Fibers } from "@/fibers";
 import { Observable } from "rxjs";
 
 export default defineComponent({
@@ -28,7 +28,9 @@ export default defineComponent({
   setup(_, { emit }) {
     const canvas = ref(null);
     const fibers$ = inject<Observable<Fibers>>("fibers$");
-    const referenceCanvasScale = inject("referenceCanvasScale");
+    const referenceCanvasScale = inject<number>(
+      "referenceCanvasScale"
+    ) as number;
 
     onMounted(() => {
       emit("update:canvasRef", canvas.value);

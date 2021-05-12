@@ -14,18 +14,35 @@
 import { defineComponent, inject, ref, onMounted } from "vue";
 import { autorun } from "mobx";
 import { BehaviorSubject, combineLatest, Observable } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 
-import { UsersStore, makeUser } from "../users";
-import type { FocusArea } from "../canvas";
-import type { Users } from "../users";
-import type { Api } from "../api";
+import { UsersStore, makeUser } from "@/users";
+import type { FocusArea } from "@/canvas";
+import type { Users } from "@/users";
+import type { Api } from "@/api";
+
+import { makeMouseMoveCoordinates$ } from "@/reactiveUtils";
 
 export default defineComponent({
   inject: ["api"],
   setup() {
-    const api = inject<Api>("api");
-    const focusArea$ = inject<Observable<FocusArea>>("focusArea$");
-    const scale$ = inject<Observable<number>>("scale$");
+    const api = inject<Api>("api")!;
+    const focusArea$ = inject<Observable<FocusArea>>("focusArea$")!;
+    const scale$ = inject<Observable<number>>("scale$")!;
+    const canvas$ = inject<Observable<HTMLCanvasElement>>("canvas$")!;
+
+    const coordinates$ = makeMouseMoveCoordinates$(canvas$);
+
+    coordinates$
+      .pipe(withLatestFrom(focusArea$!, scale$))
+      .subscribe(([pos, { coordinates }, scale]) => {
+        api.updateUser(
+          makeUser("", {
+            left: pos.x / scale + coordinates.x,
+            top: pos.y / scale + coordinates.y,
+          })
+        );
+      });
 
     const store = new UsersStore();
 

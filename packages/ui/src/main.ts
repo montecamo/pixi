@@ -2,15 +2,15 @@ import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 import App from "./App.vue";
-import Canvas from "./Canva.vue";
-import HomePage from "./components/MainPage.vue";
+import CanvasPage from "./pages/CanvasPage";
+import HomePage from "./pages/MainPage.vue";
 
 // @ts-ignore
 const app = createApp(App);
 
 const routes = [
   { path: "/", component: HomePage },
-  { path: "/:id", component: Canvas },
+  { path: "/:id", component: CanvasPage },
 ];
 
 const router = createRouter({

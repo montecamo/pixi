@@ -11,16 +11,16 @@
 </template>
 
 <script lang="ts">
-import Canvas from "./components/Canvas.vue";
-import ReferenceCanvas from "./components/ReferenceCanvas.vue";
-import UsersComp from "./components/Users.vue";
-import Dock from "./components/ControlsDock";
+import Canvas from "./Canvas.vue";
+import ReferenceCanvas from "./ReferenceCanvas.vue";
+import UsersComp from "./Users.vue";
+import Dock from "./ControlsDock";
 
 import { Observable, BehaviorSubject } from "rxjs";
 import { withLatestFrom, filter, map } from "rxjs/operators";
-import type { Api } from "./api";
-import { makeFiber, moveFiber, scaleFiber } from "./fibers";
-import type { Fibers } from "./fibers";
+import type { Api } from "@/api";
+import { makeFiber, moveFiber, scaleFiber } from "@/fibers";
+import type { Fibers } from "@/fibers";
 
 const CANVAS_SIZE = 2000;
 const MIN_ZOOM = 10;
@@ -36,15 +36,15 @@ import {
   makeMousePressedMoveVector$,
   makeMousePressedMoveCoordinates$,
   makeExtendableObservable$,
-} from "./reactiveUtils";
+} from "@/reactiveUtils";
 import {
   makeFocusArea$,
   makeFocusAreaImageData$,
   makeFocusAreaScale$,
   applyScaledImageData,
-} from "./canvas";
-import { notNull } from "./utils";
-import { useAsObservable } from "./hooks/useAsObservable";
+} from "@/canvas";
+import { notNull } from "@/utils";
+import { useAsObservable } from "@/hooks/useAsObservable";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
@@ -170,7 +170,7 @@ export default defineComponent({
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap");
 
-@import "./variables.css";
+@import "../../variables.css";
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

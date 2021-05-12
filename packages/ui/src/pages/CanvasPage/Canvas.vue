@@ -15,11 +15,11 @@
 // />
 
 import { ref, watch, defineComponent, inject, onMounted } from "vue";
-import type { FocusArea } from "../canvas";
+import type { FocusArea } from "@/canvas";
 import { Observable } from "rxjs";
 import { withLatestFrom, map } from "rxjs/operators";
-import { scaleFiber, moveFiber, renderFiber } from "../fibers";
-import type { Fibers } from "../fibers";
+import { scaleFiber, moveFiber, renderFiber } from "@/fibers";
+import type { Fibers } from "@/fibers";
 
 export default defineComponent({
   props: ["canvasRef"],
