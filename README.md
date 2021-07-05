@@ -46,3 +46,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [ ] Support HighDPI
 - [ ] Add react, svelte and angular uis
 - [ ] Make api return promises
+
+# Plan
+
+Rewrite to svelte
+Refactor contexts to typed

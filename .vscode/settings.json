@@ -2,12 +2,16 @@
   "editor.formatOnSave": true,
   "eslint.workingDirectories": [
     {
-			"directory": "packages/ui",
-			"changeProcessCWD": true
-		} ,
+      "directory": "packages/vue-ui",
+      "changeProcessCWD": true
+    },
     {
-			"directory": "packages/server",
-			"changeProcessCWD": true
-		} 
+      "directory": "packages/svelte-ui",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "packages/server",
+      "changeProcessCWD": true
+    }
   ]
 }
