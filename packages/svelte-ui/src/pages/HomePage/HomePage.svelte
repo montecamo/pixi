@@ -42,7 +42,7 @@
       <Button on:click={handleJoin} intent="primary">Join room</Button>
     </div>
     <div class="title-text or">Or</div>
-    <Button on:click={handleCreate} intent="secondary">Create a new one</Button>
+    <Button on:click={handleCreate} intent="secondary">Join random</Button>
   </div>
   <div class="right">
     <img alt="logo" class="image" src="../../public/painting.jpg" />
