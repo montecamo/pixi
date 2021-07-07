@@ -16,6 +16,7 @@
 
 <style scoped>
   .button {
+    cursor: pointer;
     border-radius: 30px;
     border: 0;
     color: #fff;
