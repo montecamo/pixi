@@ -17,6 +17,10 @@ export default defineConfig({
   resolve: {
     alias: [
       {
+        find: "socket.io-client",
+        replacement: "socket.io-client/dist/socket.io.js",
+      },
+      {
         find: "src",
         replacement: path.resolve(projectRootDir, "src"),
       },

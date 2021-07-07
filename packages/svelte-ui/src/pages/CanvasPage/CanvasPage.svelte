@@ -121,9 +121,7 @@
     api.draw(fibers);
   });
 
-  setTimeout(() => {
-    api.joinRoom(roomId);
-  }, 10000);
+  api.joinRoom(roomId);
 
   setContext("focusArea$", focusArea$);
   setContext("scale$", scale$);
