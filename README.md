@@ -15,9 +15,11 @@
 - [ ] Split global utilities and types to packages
 - [ ] Add mobx stores or raw rxjs stores
 - [x] Beautify controls
+- [ ] Fix rx unsubscribe on mount
 - [ ] Consider using WebRTC
 - [ ] Support HighDPI
 - [ ] Add react, svelte and angular uis
 - [ ] Make api return promises
 - [ ] Add phone gyroscope drawing
 - [ ] Refactor contexts to typed
+- [ ] Fix code input bugs
