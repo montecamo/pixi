@@ -9,6 +9,8 @@
     if (value.length > 1) {
       value = value.slice(0, 1);
     }
+
+    value = value.toUpperCase();
   }
 
   export function focus() {
