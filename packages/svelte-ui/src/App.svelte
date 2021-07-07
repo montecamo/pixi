@@ -2,7 +2,7 @@
   import { setContext } from "svelte";
   import { makeApi } from "./api";
   import CanvasPage from "./pages/CanvasPage";
-  import HomePage from "./pages/HomePage.svelte";
+  import HomePage from "./pages/HomePage";
 
   import { Router, Route } from "svelte-routing";
 
@@ -11,7 +11,9 @@
 </script>
 
 <Router {url}>
-  <Route path="/:roomId" component={CanvasPage} />
+  <Route path="/:roomId" let:params>
+    <CanvasPage roomId={params.roomId} />
+  </Route>
   <Route path="/">
     <HomePage />
   </Route>

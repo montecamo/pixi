@@ -3,11 +3,13 @@
   import type { Api } from "src/api";
   import { getContext, onDestroy } from "svelte";
   import { navigate } from "svelte-routing";
+  import Code from "./Code";
 
+  let code;
   const api = getContext<Api>("api") as Api;
 
   const handleJoin = () => {
-    navigate(`/AMA9`);
+    navigate(`/${code}`);
   };
 
   const handleCreate = () => {
@@ -34,11 +36,8 @@
     </div>
     <div class="code">
       <div class="code-title">Enter your room code</div>
-      <div class="code-cells">
-        <input class="code-cell" />
-        <input class="code-cell" />
-        <input class="code-cell" />
-        <input class="code-cell" />
+      <div class="code-wrapper">
+        <Code bind:value={code} length={4} />
       </div>
       <Button on:click={handleJoin} intent="primary">Join room</Button>
     </div>
@@ -107,6 +106,9 @@
     align-items: flex-start;
     flex-direction: column;
   }
+  .code-wrapper {
+    padding-bottom: 22px;
+  }
 
   .code-title {
     font-family: Quicksand;
@@ -115,22 +117,6 @@
     line-height: 25px;
     color: #abafc7;
     margin-bottom: 22px;
-  }
-
-  .code-cells {
-    display: flex;
-    margin-bottom: 22px;
-  }
-
-  .code-cell {
-    width: 80px;
-    height: 80px;
-
-    background: #192431;
-    border-radius: 20px;
-    border: 0;
-
-    margin-right: 14px;
   }
 
   .image {
