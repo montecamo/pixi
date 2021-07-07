@@ -11,6 +11,7 @@ export default defineConfig({
       preprocess: sveltePreprocess(),
     }),
   ],
+  optimizeDeps: { exclude: ["svelte-routing"] },
   server: {
     port: 8080,
   },

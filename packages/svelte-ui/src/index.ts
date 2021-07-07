@@ -11,4 +11,5 @@ function replaceContainer(Component, options) {
 
 replaceContainer(App, {
   target: document.getElementById("root"),
+  hydrate: true,
 });

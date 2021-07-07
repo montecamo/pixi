@@ -26,12 +26,10 @@ export function makeApi(): Api {
   let roomId = "";
 
   socket.on("joinedRoom", (fibers: Fibers) => {
-    console.warn("fibers", fibers);
     fibers$.next(fibers);
   });
 
   socket.on("fibers", (fibers: Fibers) => {
-    console.warn("fibers", fibers);
     fibers$.next(fibers);
   });
   socket.on("users", (user: User) => {
@@ -50,7 +48,6 @@ export function makeApi(): Api {
   return {
     joinRoom: (id) => {
       socket.emit("joinRoom", id);
-      console.warn("jobin", id, socket.connected);
     },
     getFibers: () => {
       socket.emit("getFibers", roomId);

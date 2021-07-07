@@ -130,7 +130,6 @@
   setContext("brushSize", brushSize);
   setContext("brushColor", brushColor);
   setContext("updateBrushSize", (val: number) => {
-    console.warn("val", val);
     brushSize.set(val);
   });
   setContext("updateBrushColor", (val: string) => {

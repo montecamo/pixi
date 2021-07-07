@@ -7,12 +7,11 @@
   import { Router, Route } from "svelte-routing";
 
   setContext("api", makeApi());
+  export let url = "";
 </script>
 
-<Router>
-  <Route path="/:roomId" let:params>
-    <CanvasPage roomId={params.roomId} />
-  </Route>
+<Router {url}>
+  <Route path="/:roomId" component={CanvasPage} />
   <Route path="/">
     <HomePage />
   </Route>
