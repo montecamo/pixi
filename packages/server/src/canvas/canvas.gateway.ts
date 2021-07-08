@@ -8,7 +8,10 @@ import {
 import { Server, Socket } from 'socket.io';
 import { v1 as uuidv1 } from 'uuid';
 import { CanvasService } from './canvas.service';
+import { random } from '../utils/random';
 import type { Fibers } from './types';
+
+const ROOM_CODE_LENGTH = 4;
 
 @WebSocketGateway(3001)
 export class CanvasGateway {
@@ -68,7 +71,7 @@ export class CanvasGateway {
     this.createRoom(client);
   }
 
-  createRoom(client: Socket, id = uuidv1()) {
+  createRoom(client: Socket, id = random(ROOM_CODE_LENGTH)) {
     this.canvasService.create({ id: id, fibers: [] });
 
     client.emit('roomCreated', id);
