@@ -13,7 +13,7 @@
 - [ ] Switch protocol to grpc
 - [ ] Optimise everything with throttling
 - [ ] Split global utilities and types to packages
-- [ ] Add mobx stores or raw rxjs stores
+- [x] Add mobx stores or raw rxjs stores
 - [x] Beautify controls
 - [ ] Fix rx unsubscribe on mount
 - [ ] Consider using WebRTC
@@ -23,4 +23,5 @@
 - [ ] Add phone gyroscope drawing
 - [ ] Refactor contexts to typed
 - [ ] Fix code input bugs
-- [ ] Think about storing all fibers on client
+- [x] Think about storing all fibers on client
+- [ ] Consider fuzzy rendering when too many fibers
