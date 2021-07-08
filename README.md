@@ -23,3 +23,4 @@
 - [ ] Add phone gyroscope drawing
 - [ ] Refactor contexts to typed
 - [ ] Fix code input bugs
+- [ ] Think about storing all fibers on client
