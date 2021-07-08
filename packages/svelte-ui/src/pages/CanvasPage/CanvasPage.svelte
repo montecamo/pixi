@@ -6,6 +6,7 @@
   import { Dock } from "./ControlsDock";
 
   import { Observable, BehaviorSubject } from "rxjs";
+  import { addFibers } from "src/stores/fibers";
   import { withLatestFrom, map, filter } from "rxjs/operators";
   import type { Api } from "src/api";
   import { makeFiber, moveFiber, scaleFiber } from "src/fibers";
@@ -53,7 +54,6 @@
   const brushSize$ = new BehaviorSubject(get(brushSize));
   brushSize.subscribe((v) => brushSize$.next(v));
 
-  const fibers$ = makeExtendableObservable$<Fibers>([]);
   const canvasRaw$ = new BehaviorSubject<HTMLCanvasElement>(canvas);
   $: canvasRaw$.next(canvas);
   const canvas$ = canvasRaw$.pipe(filter<HTMLCanvasElement>(Boolean));
@@ -88,12 +88,13 @@
   );
 
   const scale$ = makeFocusAreaScale$(canvas$, focusArea$);
-  const focusAreaImageData$ = makeFocusAreaImageData$(
-    referenceCanvas$,
-    focusArea$
-  );
 
-  applyScaledImageData(canvas$, scale$, focusAreaImageData$);
+  // const focusAreaImageData$ = makeFocusAreaImageData$(
+  // referenceCanvas$,
+  // focusArea$
+  // );
+
+  // applyScaledImageData(canvas$, scale$, focusAreaImageData$);
 
   focusArea$.subscribe((area) => {
     focusArea = area;
@@ -114,8 +115,8 @@
     )
   );
 
-  fibers$.attachSource(api.fibers$);
-  fibers$.attachSource(localFibers$);
+  api.fibers$.subscribe(addFibers);
+  localFibers$.subscribe(addFibers);
 
   localFibers$.subscribe((fibers) => {
     api.draw(fibers);
@@ -125,7 +126,6 @@
 
   setContext("focusArea$", focusArea$);
   setContext("scale$", scale$);
-  setContext("fibers$", fibers$.observable$);
   setContext("referenceCanvasScale", REFERENCE_CANVAS_SCALE);
   setContext("brushSize", brushSize);
   setContext("brushColor", brushColor);

@@ -1,16 +1,14 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
   import { renderFiber } from "src/fibers";
-  import type { Fibers } from "src/fibers";
-  import type { Observable } from "rxjs";
   import type { FocusArea } from "src/canvas";
+  import { fibers$ } from "src/stores/fibers";
 
   export let referenceCanvas: HTMLCanvasElement = null;
   export let width: number;
   export let height: number;
   export let focusArea: FocusArea;
 
-  const fibers$ = getContext<Observable<Fibers>>("fibers$");
   const scale = getContext<number>("referenceCanvasScale");
 
   onMount(() => {

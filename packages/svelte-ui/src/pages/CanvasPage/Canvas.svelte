@@ -1,9 +1,10 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
   import type { FocusArea } from "src/canvas";
-  import type { Observable } from "rxjs";
-  import { withLatestFrom, map } from "rxjs/operators";
+  import { Observable, Subject, merge } from "rxjs";
+  import { withLatestFrom, map, tap } from "rxjs/operators";
   import { scaleFiber, moveFiber, renderFiber } from "src/fibers";
+  import { fibers$, getFibers } from "src/stores/fibers";
   import type { Fibers } from "src/fibers";
 
   export let canvas: HTMLCanvasElement = null;
@@ -11,12 +12,25 @@
   let width: number;
   let height: number;
 
-  const fibers$ = getContext<Observable<Fibers>>("fibers$");
   const focusArea$ = getContext<Observable<FocusArea>>("focusArea$");
   const scale$ = getContext<Observable<number>>("scale$");
 
+  const manual$ = new Subject<Fibers>();
+
+  focusArea$.subscribe(({ width, height, coordinates }) => {
+    manual$.next(getFibers(coordinates.x, coordinates.y, width, height));
+  });
+
   onMount(() => {
-    fibers$
+    merge(
+      fibers$,
+      manual$.pipe(
+        tap(() => {
+          const ctx = canvas.getContext("2d");
+          ctx?.clearRect(0, 0, canvas.width, canvas.height);
+        })
+      )
+    )
       .pipe(
         withLatestFrom(focusArea$, scale$),
         map(([fibers, { coordinates }, scale]) => {
