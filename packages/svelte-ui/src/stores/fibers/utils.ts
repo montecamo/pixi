@@ -1,4 +1,4 @@
-import type { Fiber } from "./types";
+import type { Fiber } from "./fibers";
 
 export function makeFiber(
   x: number,

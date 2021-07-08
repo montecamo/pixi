@@ -1,8 +1,8 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import { renderFiber } from "src/fibers";
+  import { renderFiber } from "src/stores/fibers";
   import type { FocusArea } from "src/canvas";
-  import { fibers$ } from "src/stores/fibers";
+  import { fibers$ } from "src/stores/fibers/fibers";
 
   export let referenceCanvas: HTMLCanvasElement = null;
   export let width: number;

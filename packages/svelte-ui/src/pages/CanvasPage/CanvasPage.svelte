@@ -6,11 +6,11 @@
   import { Dock } from "./ControlsDock";
 
   import { Observable, BehaviorSubject } from "rxjs";
-  import { addFibers } from "src/stores/fibers";
+  import { addFibers } from "src/stores/fibers/fibers";
   import { withLatestFrom, map, filter } from "rxjs/operators";
   import type { Api } from "src/api";
-  import { makeFiber, moveFiber, scaleFiber } from "src/fibers";
-  import type { Fibers } from "src/fibers";
+  import { makeFiber, moveFiber, scaleFiber } from "src/stores/fibers";
+  import type { Fibers } from "src/stores/fibers";
 
   const CANVAS_SIZE = 2000;
   const MIN_ZOOM = 10;

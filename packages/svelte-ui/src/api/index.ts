@@ -2,7 +2,7 @@ import { Observable, Subject, ReplaySubject } from "rxjs";
 import io from "socket.io-client";
 
 import type { User } from "src/stores/users";
-import type { Fibers } from "src/fibers";
+import type { Fibers } from "src/stores/fibers";
 
 export type Api = {
   joinRoom: (id: string) => void;

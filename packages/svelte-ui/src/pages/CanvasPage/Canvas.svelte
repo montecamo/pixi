@@ -3,9 +3,9 @@
   import type { FocusArea } from "src/canvas";
   import { Observable, Subject, merge } from "rxjs";
   import { withLatestFrom, map, tap } from "rxjs/operators";
-  import { scaleFiber, moveFiber, renderFiber } from "src/fibers";
-  import { fibers$, getFibers } from "src/stores/fibers";
-  import type { Fibers } from "src/fibers";
+  import { scaleFiber, moveFiber, renderFiber } from "src/stores/fibers";
+  import { fibers$, getFibers } from "src/stores/fibers/fibers";
+  import type { Fibers } from "src/stores/fibers";
 
   export let canvas: HTMLCanvasElement = null;
 
