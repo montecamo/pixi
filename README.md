@@ -25,3 +25,5 @@
 - [ ] Fix code input bugs
 - [x] Think about storing all fibers on client
 - [ ] Consider fuzzy rendering when too many fibers
+- [ ] Add chat
+- [ ] Refactor stores returning subjects

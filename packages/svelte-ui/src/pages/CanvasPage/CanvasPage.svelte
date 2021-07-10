@@ -11,27 +11,24 @@
   import type { Api } from "src/api";
   import { makeFiber, moveFiber, scaleFiber } from "src/stores/fibers";
   import type { Fibers } from "src/stores/fibers";
+  import {
+    zoom,
+    focusArea$,
+    focusAreaObservable$,
+    moveArea,
+    changeRatio,
+  } from "src/stores/focusArea";
 
   const CANVAS_SIZE = 2000;
-  const MIN_ZOOM = 10;
-  const MAX_ZOOM = 100;
-  const DELTA_SPEED = 0.5;
-  const INITIAL_ZOOM = 20;
   const REFERENCE_CANVAS_SCALE = 0.1;
 
   import {
-    makeElementZoom$,
     makeElementRatio$,
     makeMousePressedMoveVector$,
     makeMousePressedMoveCoordinates$,
-    makeExtendableObservable$,
+    makeMouseWheelDelta$,
   } from "src/reactiveUtils";
-  import {
-    makeFocusArea$,
-    makeFocusAreaImageData$,
-    makeFocusAreaScale$,
-    applyScaledImageData,
-  } from "src/canvas";
+  import { makeFocusAreaScale$ } from "src/canvas";
   import { writable, get } from "svelte/store";
 
   let canvas: HTMLCanvasElement;
@@ -72,29 +69,13 @@
     }))
   );
 
-  const zoom$ = makeElementZoom$(referenceCanvas$, {
-    max: MAX_ZOOM,
-    min: MIN_ZOOM,
-    speed: DELTA_SPEED,
-    initial: INITIAL_ZOOM,
-  });
+  makeMouseWheelDelta$(referenceCanvas$).subscribe(zoom);
 
   const ratio$ = makeElementRatio$(canvas$);
-  const focusArea$ = makeFocusArea$(
-    coordinates$,
-    new BehaviorSubject({ width: CANVAS_SIZE, height: CANVAS_SIZE }),
-    ratio$,
-    zoom$
-  );
+  ratio$.subscribe(changeRatio);
+  coordinates$.subscribe(moveArea);
 
-  const scale$ = makeFocusAreaScale$(canvas$, focusArea$);
-
-  // const focusAreaImageData$ = makeFocusAreaImageData$(
-  // referenceCanvas$,
-  // focusArea$
-  // );
-
-  // applyScaledImageData(canvas$, scale$, focusAreaImageData$);
+  const scale$ = makeFocusAreaScale$(canvas$, focusAreaObservable$);
 
   focusArea$.subscribe((area) => {
     focusArea = area;

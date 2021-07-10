@@ -1,5 +1,5 @@
 import { concat, of, fromEvent, Observable } from "rxjs";
-import { switchMap, takeUntil, map, scan, startWith } from "rxjs/operators";
+import { switchMap, takeUntil, map, startWith } from "rxjs/operators";
 
 import { fromEvent$, stopDefaults$ } from "./event";
 
@@ -68,12 +68,18 @@ export function makeMousePressedMoveVector$(
 
 export function makeMouseWheelDelta$(
   element$: Observable<HTMLElement>
-): Observable<MouseCoordinates> {
+): Observable<number> {
   const wheel$ = fromEvent$<WheelEvent>(element$, "wheel");
 
   return wheel$.pipe(
     stopDefaults$(),
-    map(({ deltaX, deltaY }) => ({ x: deltaX, y: deltaY })),
-    startWith({ x: 0, y: 0 })
+    map(({ deltaX, deltaY }) => {
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        return deltaX;
+      }
+
+      return deltaY;
+    }),
+    startWith(0)
   );
 }

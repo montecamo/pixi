@@ -45,10 +45,10 @@ export class CanvasController {
     return canvases;
   }
 
-  // @Get('canvas/:canvasID')
-  // async getCanvas(@Res() res, @Param('canvasID') canvasID) {
-  // const canvas = await this.canvasService.getCanvas(canvasID);
-  // if (!canvas) throw new NotFoundException('Canvas does not exist!');
-  // return res.status(HttpStatus.OK).json(canvas);
-  // }
+  @Get('canvas/:canvasID')
+  async getCanvas(@Res() res, @Param('canvasID') canvasID) {
+    const canvas = await this.canvasService.getCanvas(canvasID);
+    if (!canvas) throw new NotFoundException('Canvas does not exist!');
+    return res.status(HttpStatus.OK).json(canvas);
+  }
 }
