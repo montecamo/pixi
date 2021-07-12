@@ -27,6 +27,7 @@
     makeMousePressedMoveVector$,
     makeMousePressedMoveCoordinates$,
     makeMouseWheelDelta$,
+    makeMouseMoveCoordinates$,
   } from "src/reactiveUtils";
   import { makeFocusAreaScale$ } from "src/canvas";
   import { writable, get } from "svelte/store";
@@ -69,7 +70,16 @@
     }))
   );
 
-  makeMouseWheelDelta$(referenceCanvas$).subscribe(zoom);
+  const move$ = makeMouseMoveCoordinates$(referenceCanvas$).pipe(
+    map(({ x, y }) => ({
+      x: x / REFERENCE_CANVAS_SCALE,
+      y: y / REFERENCE_CANVAS_SCALE,
+    }))
+  );
+  const wheelDelta$ = makeMouseWheelDelta$(referenceCanvas$);
+  wheelDelta$
+    .pipe(withLatestFrom(move$))
+    .subscribe(([delta, coordinates]) => zoom({ delta, coordinates }));
 
   const ratio$ = makeElementRatio$(canvas$);
   ratio$.subscribe(changeRatio);

@@ -2,6 +2,7 @@ import { createStore, createEvent } from "effector";
 import { BehaviorSubject } from "rxjs";
 import clamp from "lodash-es/clamp";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "src/constants";
+import { fitInRect } from "src/utils";
 
 import type { MouseCoordinates } from "src/reactiveUtils";
 
@@ -13,9 +14,9 @@ const INITIAL_ZOOM = 20;
 
 export type Zoom = number;
 
-const zoom = createEvent<number>();
+const zoom = createEvent<{ delta; coordinates: MouseCoordinates }>();
 
-const zoom$ = createStore<number>(INITIAL_ZOOM).on(zoom, (state, delta) =>
+const zoom$ = createStore<number>(INITIAL_ZOOM).on(zoom, (state, { delta }) =>
   clamp(state + delta * STEP, MIN_ZOOM, MAX_ZOOM)
 );
 // ZOOM
@@ -34,25 +35,70 @@ const INITIAL = {
 const moveArea = createEvent<MouseCoordinates>();
 const changeRatio = createEvent<number>();
 
-const focusArea$ = createStore(INITIAL)
-  .on(moveArea, (area, coords) => ({
+// zoom.watch(({ coordinates }) => moveArea(coordinates));
+
+function fitFocusArea(area): FocusArea {
+  return {
     ...area,
-    coordinates: coords,
-  }))
-  .on(zoom$, (area, zoom) => ({
+    ...fitInRect(
+      { width: area.width, height: area.height },
+      { width: CANVAS_WIDTH, height: CANVAS_HEIGHT }
+    ),
+  };
+}
+function fitCoordinates(area): FocusArea {
+  return {
     ...area,
-    width: (CANVAS_WIDTH * zoom) / 100,
-    height: (CANVAS_HEIGHT * zoom) / 100,
-  }))
-  .on(changeRatio, (area, ratio) => ({ ...area, height: area.width * ratio }))
-  .map(({ width, height, coordinates }) => ({
-    width,
-    height,
     coordinates: {
-      x: clamp(coordinates.x - width / 2, 0, CANVAS_WIDTH - width),
-      y: clamp(coordinates.y - height / 2, 0, CANVAS_HEIGHT - height),
+      x: clamp(area.coordinates.x, 0, CANVAS_WIDTH - area.width),
+      y: clamp(area.coordinates.y, 0, CANVAS_HEIGHT - area.height),
     },
-  }));
+  };
+}
+function centerArea(area): FocusArea {
+  return {
+    ...area,
+    coordinates: {
+      x: area.coordinates.x - area.width / 2,
+      y: area.coordinates.y - area.height / 2,
+    },
+  };
+}
+
+function mapArea(area) {
+  return fitCoordinates(fitFocusArea(area));
+}
+
+const focusArea$ = createStore(INITIAL)
+  .on(moveArea, (area, coordinates) =>
+    mapArea(
+      centerArea({
+        ...area,
+        coordinates,
+      })
+    )
+  )
+  .on(zoom$, (area, zoom) => {
+    const ratio = area.height / area.width;
+    const nextWidth = (CANVAS_WIDTH * zoom) / 100;
+    const nextHeight = nextWidth * ratio;
+    const deltaX = area.width - nextWidth;
+    const deltaY = area.height - nextHeight;
+
+    return mapArea({
+      coordinates: {
+        x: area.coordinates.x + deltaX / 2,
+        y: area.coordinates.y + deltaY / 2,
+      },
+      width: nextWidth,
+      height: nextHeight,
+    });
+  })
+  .on(changeRatio, (area, ratio) => {
+    const nextWidth = (CANVAS_WIDTH * zoom$.getState()) / 100;
+
+    return mapArea({ ...area, width: nextWidth, height: nextWidth * ratio });
+  });
 
 const focusAreaObservable$ = new BehaviorSubject(INITIAL);
 focusArea$.subscribe(focusAreaObservable$);
