@@ -5,7 +5,9 @@
   import { scaleFiber, moveFiber, renderFiber } from "src/stores/fibers";
   import { fibers$, getFibers } from "src/stores/fibers/fibers";
   import type { Fibers } from "src/stores/fibers";
-  import { focusAreaObservable$ } from "src/stores/focusArea";
+  import { focusAreaObservable$, changeRatio } from "src/stores/focusArea";
+
+  import { makeElementRatio$ } from "src/reactiveUtils";
 
   export let canvas: HTMLCanvasElement = null;
 
@@ -18,6 +20,12 @@
 
   focusAreaObservable$.subscribe(({ width, height, coordinates }) => {
     manual$.next(getFibers(coordinates.x, coordinates.y, width, height));
+  });
+
+  onMount(() => {
+    const subscription = makeElementRatio$(canvas).subscribe(changeRatio);
+
+    return () => subscription.unsubscribe();
   });
 
   onMount(() => {

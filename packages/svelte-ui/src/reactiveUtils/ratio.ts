@@ -1,5 +1,4 @@
 import { Observable } from "rxjs";
-import { switchMap } from "rxjs/operators";
 
 function getSize(element: HTMLElement) {
   const sizes = element.getBoundingClientRect();
@@ -7,27 +6,19 @@ function getSize(element: HTMLElement) {
   return { width: sizes.width, height: sizes.height };
 }
 
-export function makeElementRatio$(
-  element$: Observable<HTMLElement>
-): Observable<number> {
-  return element$.pipe(
-    switchMap(
-      (el) =>
-        new Observable<number>((subscriber$) => {
-          function onResize() {
-            const { width, height } = getSize(el);
-            subscriber$.next(height / width);
-          }
+export function makeElementRatio$(element: HTMLElement): Observable<number> {
+  return new Observable<number>((subscriber$) => {
+    function onResize() {
+      const { width, height } = getSize(element);
+      subscriber$.next(height / width);
+    }
 
-          // @ts-ignore
-          const observer = new ResizeObserver(onResize);
+    const observer = new ResizeObserver(onResize);
 
-          observer.observe(el);
+    observer.observe(element);
 
-          return () => {
-            observer.unobserve(el);
-          };
-        })
-    )
-  );
+    return () => {
+      observer.unobserve(element);
+    };
+  });
 }

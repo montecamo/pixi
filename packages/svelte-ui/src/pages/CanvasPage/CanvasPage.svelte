@@ -12,19 +12,12 @@
   import type { Api } from "src/api";
   import { makeFiber, moveFiber, scaleFiber } from "src/stores/fibers";
   import type { Fibers } from "src/stores/fibers";
-  import {
-    focusArea$,
-    focusAreaObservable$,
-    changeRatio,
-  } from "src/stores/focusArea";
+  import { focusArea$, focusAreaObservable$ } from "src/stores/focusArea";
 
   const CANVAS_SIZE = 2000;
   const REFERENCE_CANVAS_SCALE = 0.1;
 
-  import {
-    makeElementRatio$,
-    makeMousePressedMoveVector$,
-  } from "src/reactiveUtils";
+  import { makeMousePressedMoveVector$ } from "src/reactiveUtils";
   import { makeFocusAreaScale$ } from "src/canvas";
 
   let canvas: HTMLCanvasElement;
@@ -36,16 +29,6 @@
   const canvasRaw$ = new BehaviorSubject<HTMLCanvasElement>(canvas);
   $: canvasRaw$.next(canvas);
   const canvas$ = canvasRaw$.pipe(filter<HTMLCanvasElement>(Boolean));
-  const referenceCanvasRaw$ = new BehaviorSubject<HTMLCanvasElement>(
-    referenceCanvas
-  );
-  $: referenceCanvasRaw$.next(referenceCanvas);
-  const referenceCanvas$ = referenceCanvasRaw$.pipe(
-    filter<HTMLCanvasElement>(Boolean)
-  );
-
-  const ratio$ = makeElementRatio$(canvas$);
-  ratio$.subscribe(changeRatio);
 
   const scale$ = makeFocusAreaScale$(canvas$, focusAreaObservable$);
 
