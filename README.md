@@ -27,3 +27,4 @@
 - [ ] Consider fuzzy rendering when too many fibers
 - [ ] Add chat
 - [ ] Refactor stores returning subjects
+- [ ] Better zooming behavior

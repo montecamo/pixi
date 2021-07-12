@@ -1,14 +1,7 @@
 <script lang="ts">
-  import { getContext } from "svelte";
-  import type { Writable } from "svelte/store";
   import Control from "src/components/Control.svelte";
   import ColorPicker from "./ColorPicker.svelte";
-
-  const color: Writable<string> = getContext("brushColor");
-  const updateColor: (color: string) => void = getContext("updateBrushColor");
-
-  const size: Writable<number> = getContext("brushSize");
-  const updateSize: (value: number) => void = getContext("updateBrushSize");
+  import { brush$, updateBrushColor, updateBrushSize } from "src/stores/brush";
 </script>
 
 <div class="container">
@@ -17,11 +10,14 @@
     min={0}
     max={48}
     step={1}
-    on:change={(e) => updateSize(e.detail)}
-    value={$size}
+    on:change={(e) => updateBrushSize(e.detail)}
+    value={$brush$.size}
   />
   <div class="spacer" />
-  <ColorPicker on:change={(e) => updateColor(e.detail)} value={$color} />
+  <ColorPicker
+    on:change={(e) => updateBrushColor(e.detail)}
+    value={$brush$.color}
+  />
 </div>
 
 <style>

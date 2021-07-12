@@ -4,6 +4,7 @@
   import ReferenceCanvas from "./ReferenceCanvas.svelte";
   import UsersComp from "./Users.svelte";
   import { Dock } from "./ControlsDock";
+  import { brushObservable$ } from "src/stores/brush";
 
   import { Observable, BehaviorSubject } from "rxjs";
   import { addFibers } from "src/stores/fibers/fibers";
@@ -38,19 +39,11 @@
   const api = getContext<Api>("api");
   export let roomId: string;
 
-  let brushSize = writable(24);
-  let brushColor = writable("#fff");
   let focusArea = {
     width: 100,
     height: 100,
     coordinates: { x: 2, y: 2 },
   };
-
-  const brushColor$ = new BehaviorSubject(get(brushColor));
-  brushColor.subscribe((v) => brushColor$.next(v));
-
-  const brushSize$ = new BehaviorSubject(get(brushSize));
-  brushSize.subscribe((v) => brushSize$.next(v));
 
   const canvasRaw$ = new BehaviorSubject<HTMLCanvasElement>(canvas);
   $: canvasRaw$.next(canvas);
@@ -94,8 +87,8 @@
   const moveVector$ = makeMousePressedMoveVector$(canvas$);
 
   const localFibers$: Observable<Fibers> = moveVector$.pipe(
-    withLatestFrom(brushColor$, brushSize$),
-    map(([{ fromX, fromY, toX, toY }, color, size]) => {
+    withLatestFrom(brushObservable$),
+    map(([{ fromX, fromY, toX, toY }, { color, size }]) => {
       return [makeFiber(fromX, fromY, toX, toY, color, size)];
     }),
     withLatestFrom(scale$, focusArea$),
@@ -118,14 +111,6 @@
   setContext("focusArea$", focusArea$);
   setContext("scale$", scale$);
   setContext("referenceCanvasScale", REFERENCE_CANVAS_SCALE);
-  setContext("brushSize", brushSize);
-  setContext("brushColor", brushColor);
-  setContext("updateBrushSize", (val: number) => {
-    brushSize.set(val);
-  });
-  setContext("updateBrushColor", (val: string) => {
-    brushColor.set(val);
-  });
   setContext("canvas$", canvas$);
 </script>
 
