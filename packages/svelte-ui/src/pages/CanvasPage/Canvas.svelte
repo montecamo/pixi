@@ -1,23 +1,22 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import type { FocusArea } from "src/canvas";
   import { Observable, Subject, merge } from "rxjs";
   import { withLatestFrom, map, tap } from "rxjs/operators";
   import { scaleFiber, moveFiber, renderFiber } from "src/stores/fibers";
   import { fibers$, getFibers } from "src/stores/fibers/fibers";
   import type { Fibers } from "src/stores/fibers";
+  import { focusAreaObservable$ } from "src/stores/focusArea";
 
   export let canvas: HTMLCanvasElement = null;
 
   let width: number;
   let height: number;
 
-  const focusArea$ = getContext<Observable<FocusArea>>("focusArea$");
   const scale$ = getContext<Observable<number>>("scale$");
 
   const manual$ = new Subject<Fibers>();
 
-  focusArea$.subscribe(({ width, height, coordinates }) => {
+  focusAreaObservable$.subscribe(({ width, height, coordinates }) => {
     manual$.next(getFibers(coordinates.x, coordinates.y, width, height));
   });
 
@@ -32,7 +31,7 @@
       )
     )
       .pipe(
-        withLatestFrom(focusArea$, scale$),
+        withLatestFrom(focusAreaObservable$, scale$),
         map(([fibers, { coordinates }, scale]) => {
           return fibers.map((f) =>
             scaleFiber(moveFiber(f, -coordinates.x, -coordinates.y), 1 / scale)

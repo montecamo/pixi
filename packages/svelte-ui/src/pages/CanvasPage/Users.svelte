@@ -4,20 +4,19 @@
   import { map, startWith, withLatestFrom } from "rxjs/operators";
 
   import { users$, deleteUser, addUser, makeUser } from "src/stores/users";
-  import type { FocusArea } from "src/canvas";
+  import { focusAreaObservable$ } from "src/stores/focusArea";
   import type { Api } from "src/api";
 
   import { makeMouseMoveCoordinates$ } from "src/reactiveUtils";
 
   const api = getContext<Api>("api")!;
-  const focusArea$ = getContext<Observable<FocusArea>>("focusArea$")!;
   const scale$ = getContext<Observable<number>>("scale$")!;
   const canvas$ = getContext<Observable<HTMLCanvasElement>>("canvas$")!;
 
   const coordinates$ = makeMouseMoveCoordinates$(canvas$);
 
   coordinates$
-    .pipe(withLatestFrom(focusArea$!, scale$))
+    .pipe(withLatestFrom(focusAreaObservable$, scale$))
     .subscribe(([pos, { coordinates }, scale]) => {
       api.updateUser(
         makeUser("", {
@@ -27,7 +26,11 @@
       );
     });
 
-  const mappedUsers$ = combineLatest([users$, focusArea$, scale$]).pipe(
+  const mappedUsers$ = combineLatest([
+    users$,
+    focusAreaObservable$,
+    scale$,
+  ]).pipe(
     map(([serverUsers, { coordinates }, scale]) => {
       return serverUsers.map((u) =>
         makeUser(u.id, {

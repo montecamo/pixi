@@ -31,19 +31,12 @@
     makeMouseMoveCoordinates$,
   } from "src/reactiveUtils";
   import { makeFocusAreaScale$ } from "src/canvas";
-  import { writable, get } from "svelte/store";
 
   let canvas: HTMLCanvasElement;
   let referenceCanvas: HTMLCanvasElement;
 
   const api = getContext<Api>("api");
   export let roomId: string;
-
-  let focusArea = {
-    width: 100,
-    height: 100,
-    coordinates: { x: 2, y: 2 },
-  };
 
   const canvasRaw$ = new BehaviorSubject<HTMLCanvasElement>(canvas);
   $: canvasRaw$.next(canvas);
@@ -80,10 +73,6 @@
 
   const scale$ = makeFocusAreaScale$(canvas$, focusAreaObservable$);
 
-  focusArea$.subscribe((area) => {
-    focusArea = area;
-  });
-
   const moveVector$ = makeMousePressedMoveVector$(canvas$);
 
   const localFibers$: Observable<Fibers> = moveVector$.pipe(
@@ -108,7 +97,6 @@
 
   api.joinRoom(roomId);
 
-  setContext("focusArea$", focusArea$);
   setContext("scale$", scale$);
   setContext("referenceCanvasScale", REFERENCE_CANVAS_SCALE);
   setContext("canvas$", canvas$);
@@ -118,7 +106,7 @@
 <ReferenceCanvas
   width={CANVAS_SIZE}
   height={CANVAS_SIZE}
-  {focusArea}
+  focusArea={$focusArea$}
   bind:referenceCanvas
 />
 <UsersComp />
