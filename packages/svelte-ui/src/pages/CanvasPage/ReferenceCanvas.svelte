@@ -3,10 +3,15 @@
   import { renderFiber } from "src/stores/fibers";
   import type { FocusArea } from "src/canvas";
   import { fibers$ } from "src/stores/fibers/fibers";
-  import { moveArea } from "src/stores/focusArea";
+  import { moveArea, zoom } from "src/stores/focusArea";
   import { REFERENCE_CANVAS_SCALE } from "src/constants";
   import { fromMousePressedMove$ } from "src/reactiveUtils";
-  import { map } from "rxjs/operators";
+  import { map, withLatestFrom } from "rxjs/operators";
+
+  import {
+    makeMouseWheelDelta$,
+    makeMouseMoveCoordinates$,
+  } from "src/reactiveUtils";
 
   export let referenceCanvas: HTMLCanvasElement = null;
   export let width: number;
@@ -34,6 +39,22 @@
         }))
       )
       .subscribe(moveArea);
+
+    return () => subscription.unsubscribe();
+  });
+
+  onMount(() => {
+    const move$ = makeMouseMoveCoordinates$(referenceCanvas).pipe(
+      map(({ x, y }) => ({
+        x: x / REFERENCE_CANVAS_SCALE,
+        y: y / REFERENCE_CANVAS_SCALE,
+      }))
+    );
+    const wheelDelta$ = makeMouseWheelDelta$(referenceCanvas);
+
+    const subscription = wheelDelta$
+      .pipe(withLatestFrom(move$))
+      .subscribe(([delta, coordinates]) => zoom({ delta, coordinates }));
 
     return () => subscription.unsubscribe();
   });

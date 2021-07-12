@@ -13,7 +13,6 @@
   import { makeFiber, moveFiber, scaleFiber } from "src/stores/fibers";
   import type { Fibers } from "src/stores/fibers";
   import {
-    zoom,
     focusArea$,
     focusAreaObservable$,
     changeRatio,
@@ -25,8 +24,6 @@
   import {
     makeElementRatio$,
     makeMousePressedMoveVector$,
-    makeMouseWheelDelta$,
-    makeMouseMoveCoordinates$,
   } from "src/reactiveUtils";
   import { makeFocusAreaScale$ } from "src/canvas";
 
@@ -46,17 +43,6 @@
   const referenceCanvas$ = referenceCanvasRaw$.pipe(
     filter<HTMLCanvasElement>(Boolean)
   );
-
-  const move$ = makeMouseMoveCoordinates$(referenceCanvas$).pipe(
-    map(({ x, y }) => ({
-      x: x / REFERENCE_CANVAS_SCALE,
-      y: y / REFERENCE_CANVAS_SCALE,
-    }))
-  );
-  const wheelDelta$ = makeMouseWheelDelta$(referenceCanvas$);
-  wheelDelta$
-    .pipe(withLatestFrom(move$))
-    .subscribe(([delta, coordinates]) => zoom({ delta, coordinates }));
 
   const ratio$ = makeElementRatio$(canvas$);
   ratio$.subscribe(changeRatio);

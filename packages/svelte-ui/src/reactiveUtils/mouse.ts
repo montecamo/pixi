@@ -52,10 +52,10 @@ export function makeMousePressedMoveCoordinates$(
 }
 
 export function makeMouseMoveCoordinates$(
-  element$: Observable<HTMLElement>,
+  element: HTMLElement,
   initial: number = 0
 ): Observable<MouseCoordinates> {
-  const move$ = fromEvent$<MouseEvent>(element$, "mousemove");
+  const move$ = fromEvent<MouseEvent>(element, "mousemove");
 
   return move$.pipe(
     map(({ offsetX, offsetY }) => ({ x: offsetX, y: offsetY })),
@@ -79,10 +79,8 @@ export function makeMousePressedMoveVector$(
   );
 }
 
-export function makeMouseWheelDelta$(
-  element$: Observable<HTMLElement>
-): Observable<number> {
-  const wheel$ = fromEvent$<WheelEvent>(element$, "wheel");
+export function makeMouseWheelDelta$(element: HTMLElement): Observable<number> {
+  const wheel$ = fromEvent<WheelEvent>(element, "wheel");
 
   return wheel$.pipe(
     stopDefaults$(),
