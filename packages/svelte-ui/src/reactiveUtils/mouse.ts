@@ -24,6 +24,19 @@ export function makeMousePressedMove$(
     })
   );
 }
+export function fromMousePressedMove$(
+  element: HTMLElement
+): Observable<MouseEvent> {
+  const down$ = fromEvent<MouseEvent>(element, "mousedown");
+  const move$ = fromEvent<MouseEvent>(element, "mousemove");
+  const up$ = fromEvent<MouseEvent>(document, "mouseup");
+
+  return down$.pipe(
+    switchMap((e) => {
+      return concat(of(e), move$).pipe(takeUntil(up$));
+    })
+  );
+}
 
 export function makeMousePressedMoveCoordinates$(
   element$: Observable<HTMLElement>,

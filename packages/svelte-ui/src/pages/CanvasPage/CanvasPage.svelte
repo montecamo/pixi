@@ -16,7 +16,6 @@
     zoom,
     focusArea$,
     focusAreaObservable$,
-    moveArea,
     changeRatio,
   } from "src/stores/focusArea";
 
@@ -26,7 +25,6 @@
   import {
     makeElementRatio$,
     makeMousePressedMoveVector$,
-    makeMousePressedMoveCoordinates$,
     makeMouseWheelDelta$,
     makeMouseMoveCoordinates$,
   } from "src/reactiveUtils";
@@ -49,13 +47,6 @@
     filter<HTMLCanvasElement>(Boolean)
   );
 
-  const coordinates$ = makeMousePressedMoveCoordinates$(referenceCanvas$).pipe(
-    map(({ x, y }) => ({
-      x: x / REFERENCE_CANVAS_SCALE,
-      y: y / REFERENCE_CANVAS_SCALE,
-    }))
-  );
-
   const move$ = makeMouseMoveCoordinates$(referenceCanvas$).pipe(
     map(({ x, y }) => ({
       x: x / REFERENCE_CANVAS_SCALE,
@@ -69,7 +60,6 @@
 
   const ratio$ = makeElementRatio$(canvas$);
   ratio$.subscribe(changeRatio);
-  coordinates$.subscribe(moveArea);
 
   const scale$ = makeFocusAreaScale$(canvas$, focusAreaObservable$);
 

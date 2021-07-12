@@ -3,6 +3,10 @@
   import { renderFiber } from "src/stores/fibers";
   import type { FocusArea } from "src/canvas";
   import { fibers$ } from "src/stores/fibers/fibers";
+  import { moveArea } from "src/stores/focusArea";
+  import { REFERENCE_CANVAS_SCALE } from "src/constants";
+  import { fromMousePressedMove$ } from "src/reactiveUtils";
+  import { map } from "rxjs/operators";
 
   export let referenceCanvas: HTMLCanvasElement = null;
   export let width: number;
@@ -19,6 +23,19 @@
         renderFiber(ctx, f);
       });
     });
+  });
+
+  onMount(() => {
+    const subscription = fromMousePressedMove$(referenceCanvas)
+      .pipe(
+        map(({ offsetX, offsetY }) => ({
+          x: offsetX / REFERENCE_CANVAS_SCALE,
+          y: offsetY / REFERENCE_CANVAS_SCALE,
+        }))
+      )
+      .subscribe(moveArea);
+
+    return () => subscription.unsubscribe();
   });
 </script>
 
