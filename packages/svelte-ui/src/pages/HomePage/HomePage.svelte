@@ -1,7 +1,7 @@
 <script lang="ts">
   import Button from "src/components/Button.svelte";
   import type { Api } from "src/api";
-  import { getContext, onDestroy } from "svelte";
+  import { getContext, onMount } from "svelte";
   import { navigate } from "svelte-routing";
   import Code from "./Code";
 
@@ -16,12 +16,14 @@
     api.createRoom();
   };
 
-  const subscription = api.roomCreated$.subscribe((id) => {
-    navigate(`/${id}`);
-  });
+  onMount(() => {
+    const subscription = api.roomCreated$.subscribe((id) => {
+      navigate(`/${id}`);
+    });
 
-  onDestroy(() => {
-    subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   });
 </script>
 

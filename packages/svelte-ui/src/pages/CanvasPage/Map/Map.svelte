@@ -15,19 +15,16 @@
   } from "src/reactiveUtils";
 
   export let canvas: HTMLCanvasElement = null;
+  $: ctx = canvas?.getContext("2d");
 
-  onMount(() => {
-    fibers$.subscribe((fibers) => {
-      const ctx = canvas.getContext("2d");
-
-      fibers.forEach((f) => {
-        renderFiber(ctx, f);
-      });
-    });
+  $: $fibers$.forEach((f) => {
+    if (ctx) {
+      renderFiber(ctx, f);
+    }
   });
 
   onMount(() => {
-    const subscription = fromMousePressedMove$(canvas)
+    const subsscription = fromMousePressedMove$(canvas)
       .pipe(
         stopDefaults$(),
         map(({ offsetX, offsetY }) => ({
@@ -37,7 +34,7 @@
       )
       .subscribe(moveArea);
 
-    return () => subscription.unsubscribe();
+    return () => subsscription.unsubscribe();
   });
 
   onMount(() => {

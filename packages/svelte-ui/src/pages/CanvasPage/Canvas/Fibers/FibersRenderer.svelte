@@ -9,7 +9,7 @@
     renderFiber,
     scaleFiberCoordinates,
   } from "src/stores/fibers";
-  import { focusAreaObservable$, changeRatio } from "src/stores/focusArea";
+  import { focusArea$, changeRatio } from "src/stores/focusArea";
 
   import { makeElementRatio$ } from "src/reactiveUtils";
   import { onMount } from "svelte";
@@ -26,9 +26,14 @@
 
   const manual$ = new Subject<Fibers>();
 
-  focusAreaObservable$.subscribe(({ width, height, coordinates }) => {
-    manual$.next(getFibers(coordinates.x, coordinates.y, width, height));
-  });
+  $: manual$.next(
+    getFibers(
+      $focusArea$.coordinates.x,
+      $focusArea$.coordinates.y,
+      $focusArea$.width,
+      $focusArea$.height
+    )
+  );
 
   onMount(() => {
     const subscription = makeElementRatio$(canvas).subscribe(changeRatio);
