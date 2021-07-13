@@ -1,11 +1,13 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import type { Api } from "src/api";
+  import { NEVER } from "rxjs";
   import { withLatestFrom, map, startWith } from "rxjs/operators";
   import { addFibers } from "src/stores/fibers";
   import { brushObservable$ } from "src/stores/brush";
 
   const api = getContext<Api>("api");
+  let container;
 
   import {
     makeFiber,
@@ -18,9 +20,7 @@
   export let scale: number;
   export let offsetX: number;
   export let offsetY: number;
-  const moveVector$ = makeMousePressedMoveVector$(
-    document as unknown as HTMLElement
-  );
+  $: moveVector$ = container ? makeMousePressedMoveVector$(container) : NEVER;
   const apiFibers$ = api.fibers$.pipe(startWith([]));
 
   $: fibers$ = moveVector$.pipe(
@@ -40,3 +40,15 @@
   $: api.draw($fibers$);
   $: addFibers($apiFibers$);
 </script>
+
+<div bind:this={container} class="container" />
+
+<style>
+  .container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    top: 0;
+  }
+</style>
