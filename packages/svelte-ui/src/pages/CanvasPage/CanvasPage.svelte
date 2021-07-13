@@ -6,8 +6,6 @@
 
   import { addFibers } from "src/stores/fibers/fibers";
   import type { Api } from "src/api";
-  import { focusArea$ } from "src/stores/focusArea";
-  import { MAP_WIDTH, MAP_HEIGHT } from "src/constants";
 
   const api = getContext<Api>("api");
   export let roomId: string;
@@ -18,7 +16,7 @@
 </script>
 
 <Canvas />
-<Map width={MAP_WIDTH} height={MAP_HEIGHT} focusArea={$focusArea$} />
+<Map />
 <Dock />
 
 <style>

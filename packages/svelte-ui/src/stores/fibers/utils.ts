@@ -32,6 +32,12 @@ export function scaleFiber(
     size / scale
   );
 }
+export function scaleFiberCoordinates(
+  { x, y, toX, toY, color, size }: Fiber,
+  scale: number
+): Fiber {
+  return makeFiber(x / scale, y / scale, toX / scale, toY / scale, color, size);
+}
 
 export function renderFiber(
   ctx: CanvasRenderingContext2D,

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { renderFiber } from "src/stores/fibers";
-  import type { FocusArea } from "src/canvas";
   import { fibers$ } from "src/stores/fibers/fibers";
-  import { moveArea, zoom } from "src/stores/focusArea";
+  import { moveArea, zoom, focusArea$ } from "src/stores/focusArea";
   import { MAP_SCALE } from "src/constants";
   import { fromMousePressedMove$ } from "src/reactiveUtils";
   import { map, withLatestFrom } from "rxjs/operators";
+  import { MAP_WIDTH, MAP_HEIGHT } from "src/constants";
 
   import {
     makeMouseWheelDelta$,
@@ -14,9 +14,6 @@
   } from "src/reactiveUtils";
 
   export let canvas: HTMLCanvasElement = null;
-  export let width: number;
-  export let height: number;
-  export let focusArea: FocusArea;
 
   onMount(() => {
     fibers$.subscribe((fibers) => {
@@ -60,15 +57,20 @@
 
 <div
   class="wrapper"
-  style="width: {width * MAP_SCALE}px; height: {height * MAP_SCALE}px"
+  style="width: {MAP_WIDTH * MAP_SCALE}px; height: {MAP_HEIGHT * MAP_SCALE}px"
 >
-  <canvas {width} {height} class="canvas" bind:this={canvas} />
+  <canvas
+    width={MAP_WIDTH}
+    height={MAP_HEIGHT}
+    class="canvas"
+    bind:this={canvas}
+  />
   <div
     style="
-    left: {focusArea.coordinates.x * MAP_SCALE}px;
-    top: {focusArea.coordinates.y * MAP_SCALE}px;
-    width: {focusArea.width * MAP_SCALE}px;
-    height: {focusArea.height * MAP_SCALE}px;
+    left: {$focusArea$.coordinates.x * MAP_SCALE}px;
+    top: {$focusArea$.coordinates.y * MAP_SCALE}px;
+    width: {$focusArea$.width * MAP_SCALE}px;
+    height: {$focusArea$.height * MAP_SCALE}px;
   "
     class="focus-area"
   />

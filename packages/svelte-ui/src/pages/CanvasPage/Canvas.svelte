@@ -14,6 +14,7 @@
     addFibers,
     moveFiber,
     scaleFiber,
+    scaleFiberCoordinates,
     renderFiber,
   } from "src/stores/fibers";
   import {
@@ -53,7 +54,11 @@
       withLatestFrom(scale$, focusArea$),
       map(([fibers, scale, { coordinates }]) =>
         fibers.map((f) =>
-          moveFiber(scaleFiber(f, scale), coordinates.x, coordinates.y)
+          moveFiber(
+            scaleFiberCoordinates(f, scale),
+            coordinates.x,
+            coordinates.y
+          )
         )
       )
     );
