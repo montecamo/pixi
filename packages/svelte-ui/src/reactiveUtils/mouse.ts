@@ -1,7 +1,7 @@
 import { concat, of, fromEvent, Observable } from "rxjs";
 import { switchMap, takeUntil, map, startWith } from "rxjs/operators";
 
-import { fromEvent$, stopDefaults$ } from "./event";
+import { stopDefaults$ } from "./event";
 
 export type MouseCoordinates = { x: number; y: number };
 export type MouseVector = {
@@ -12,10 +12,10 @@ export type MouseVector = {
 };
 
 export function makeMousePressedMove$(
-  element$: Observable<HTMLElement>
+  element: HTMLElement
 ): Observable<MouseEvent> {
-  const down$ = fromEvent$<MouseEvent>(element$, "mousedown");
-  const move$ = fromEvent$<MouseEvent>(element$, "mousemove");
+  const down$ = fromEvent<MouseEvent>(element, "mousedown");
+  const move$ = fromEvent<MouseEvent>(element, "mousemove");
   const up$ = fromEvent<MouseEvent>(document, "mouseup");
 
   return down$.pipe(
@@ -39,10 +39,10 @@ export function fromMousePressedMove$(
 }
 
 export function makeMousePressedMoveCoordinates$(
-  element$: Observable<HTMLElement>,
+  element: HTMLElement,
   initial: number = 0
 ): Observable<MouseCoordinates> {
-  const pressedMove$ = makeMousePressedMove$(element$);
+  const pressedMove$ = makeMousePressedMove$(element);
 
   return pressedMove$.pipe(
     map(({ offsetX, offsetY }) => ({ x: offsetX, y: offsetY })),
@@ -65,9 +65,9 @@ export function makeMouseMoveCoordinates$(
 }
 
 export function makeMousePressedMoveVector$(
-  element$: Observable<HTMLElement>
+  element: HTMLElement
 ): Observable<MouseVector> {
-  const pressedMove$ = makeMousePressedMove$(element$);
+  const pressedMove$ = makeMousePressedMove$(element);
 
   return pressedMove$.pipe(
     map(({ movementX, movementY, offsetX, offsetY }) => ({

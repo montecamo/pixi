@@ -1,9 +1,7 @@
 import { Observable, combineLatest } from "rxjs";
-import { map, filter, withLatestFrom } from "rxjs/operators";
+import { map, filter } from "rxjs/operators";
 
-import { fitInRect$ } from "src/reactiveUtils";
-import type { MouseCoordinates, MouseVector } from "src/reactiveUtils";
-import { cut } from "src/utils";
+import type { MouseCoordinates } from "src/reactiveUtils";
 import type { CanvasImageData } from "./imageData";
 
 export type FocusArea = {
@@ -11,19 +9,6 @@ export type FocusArea = {
   width: number;
   height: number;
 };
-
-export function makeFocusAreaScale$(
-  canvas$: Observable<HTMLCanvasElement>,
-  focusArea$: Observable<FocusArea>
-): Observable<number> {
-  const scale$ = combineLatest([focusArea$, canvas$]).pipe(
-    map(([{ width }, canvas]) => {
-      return canvas.width / width;
-    })
-  );
-
-  return scale$;
-}
 
 export function makeFocusAreaImageData$(
   canvas$: Observable<HTMLCanvasElement>,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { renderFiber } from "src/stores/fibers";
   import type { FocusArea } from "src/canvas";
   import { fibers$ } from "src/stores/fibers/fibers";
@@ -17,8 +17,6 @@
   export let width: number;
   export let height: number;
   export let focusArea: FocusArea;
-
-  const scale = getContext<number>("referenceCanvasScale");
 
   onMount(() => {
     fibers$.subscribe((fibers) => {
@@ -62,15 +60,16 @@
 
 <div
   class="wrapper"
-  style="width: {width * scale}px; height: {height * scale}px"
+  style="width: {width * REFERENCE_CANVAS_SCALE}px; height: {height *
+    REFERENCE_CANVAS_SCALE}px"
 >
   <canvas {width} {height} class="canvas" bind:this={referenceCanvas} />
   <div
     style="
-    left: {focusArea.coordinates.x * scale}px;
-    top: {focusArea.coordinates.y * scale}px;
-    width: {focusArea.width * scale}px;
-    height: {focusArea.height * scale}px;
+    left: {focusArea.coordinates.x * REFERENCE_CANVAS_SCALE}px;
+    top: {focusArea.coordinates.y * REFERENCE_CANVAS_SCALE}px;
+    width: {focusArea.width * REFERENCE_CANVAS_SCALE}px;
+    height: {focusArea.height * REFERENCE_CANVAS_SCALE}px;
   "
     class="focus-area"
   />
