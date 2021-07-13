@@ -20,7 +20,15 @@
 <div class="control" on:wheel|preventDefault={handleWheel}>
   <div class="title">{title}</div>
   <div class="value">{value}</div>
-  <input class="slider" type="range" {min} {max} {step} {value} />
+  <input
+    class="slider"
+    type="range"
+    {min}
+    {max}
+    {step}
+    {value}
+    on:input={(e) => dispatch("change", e.target.value)}
+  />
 </div>
 
 <style>
