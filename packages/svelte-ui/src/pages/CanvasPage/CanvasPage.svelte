@@ -1,17 +1,13 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import Canvas from "./Canvas.svelte";
-  import ReferenceCanvas from "./ReferenceCanvas.svelte";
+  import Map from "./Map.svelte";
   import { Dock } from "./ControlsDock";
 
   import { addFibers } from "src/stores/fibers/fibers";
   import type { Api } from "src/api";
   import { focusArea$ } from "src/stores/focusArea";
-
-  const CANVAS_SIZE = 2000;
-
-  let canvas: HTMLCanvasElement;
-  let referenceCanvas: HTMLCanvasElement;
+  import { MAP_WIDTH, MAP_HEIGHT } from "src/constants";
 
   const api = getContext<Api>("api");
   export let roomId: string;
@@ -21,13 +17,8 @@
   api.joinRoom(roomId);
 </script>
 
-<Canvas bind:canvas />
-<ReferenceCanvas
-  width={CANVAS_SIZE}
-  height={CANVAS_SIZE}
-  focusArea={$focusArea$}
-  bind:referenceCanvas
-/>
+<Canvas />
+<Map width={MAP_WIDTH} height={MAP_HEIGHT} focusArea={$focusArea$} />
 <Dock />
 
 <style>

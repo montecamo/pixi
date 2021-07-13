@@ -4,7 +4,7 @@
   import type { FocusArea } from "src/canvas";
   import { fibers$ } from "src/stores/fibers/fibers";
   import { moveArea, zoom } from "src/stores/focusArea";
-  import { REFERENCE_CANVAS_SCALE } from "src/constants";
+  import { MAP_SCALE } from "src/constants";
   import { fromMousePressedMove$ } from "src/reactiveUtils";
   import { map, withLatestFrom } from "rxjs/operators";
 
@@ -13,14 +13,14 @@
     makeMouseMoveCoordinates$,
   } from "src/reactiveUtils";
 
-  export let referenceCanvas: HTMLCanvasElement = null;
+  export let canvas: HTMLCanvasElement = null;
   export let width: number;
   export let height: number;
   export let focusArea: FocusArea;
 
   onMount(() => {
     fibers$.subscribe((fibers) => {
-      const ctx = referenceCanvas.getContext("2d");
+      const ctx = canvas.getContext("2d");
 
       fibers.forEach((f) => {
         renderFiber(ctx, f);
@@ -29,11 +29,11 @@
   });
 
   onMount(() => {
-    const subscription = fromMousePressedMove$(referenceCanvas)
+    const subscription = fromMousePressedMove$(canvas)
       .pipe(
         map(({ offsetX, offsetY }) => ({
-          x: offsetX / REFERENCE_CANVAS_SCALE,
-          y: offsetY / REFERENCE_CANVAS_SCALE,
+          x: offsetX / MAP_SCALE,
+          y: offsetY / MAP_SCALE,
         }))
       )
       .subscribe(moveArea);
@@ -42,13 +42,13 @@
   });
 
   onMount(() => {
-    const move$ = makeMouseMoveCoordinates$(referenceCanvas).pipe(
+    const move$ = makeMouseMoveCoordinates$(canvas).pipe(
       map(({ x, y }) => ({
-        x: x / REFERENCE_CANVAS_SCALE,
-        y: y / REFERENCE_CANVAS_SCALE,
+        x: x / MAP_SCALE,
+        y: y / MAP_SCALE,
       }))
     );
-    const wheelDelta$ = makeMouseWheelDelta$(referenceCanvas);
+    const wheelDelta$ = makeMouseWheelDelta$(canvas);
 
     const subscription = wheelDelta$
       .pipe(withLatestFrom(move$))
@@ -60,16 +60,15 @@
 
 <div
   class="wrapper"
-  style="width: {width * REFERENCE_CANVAS_SCALE}px; height: {height *
-    REFERENCE_CANVAS_SCALE}px"
+  style="width: {width * MAP_SCALE}px; height: {height * MAP_SCALE}px"
 >
-  <canvas {width} {height} class="canvas" bind:this={referenceCanvas} />
+  <canvas {width} {height} class="canvas" bind:this={canvas} />
   <div
     style="
-    left: {focusArea.coordinates.x * REFERENCE_CANVAS_SCALE}px;
-    top: {focusArea.coordinates.y * REFERENCE_CANVAS_SCALE}px;
-    width: {focusArea.width * REFERENCE_CANVAS_SCALE}px;
-    height: {focusArea.height * REFERENCE_CANVAS_SCALE}px;
+    left: {focusArea.coordinates.x * MAP_SCALE}px;
+    top: {focusArea.coordinates.y * MAP_SCALE}px;
+    width: {focusArea.width * MAP_SCALE}px;
+    height: {focusArea.height * MAP_SCALE}px;
   "
     class="focus-area"
   />

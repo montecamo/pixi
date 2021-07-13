@@ -1,7 +1,7 @@
 import { createStore, createEvent } from "effector";
 import { BehaviorSubject } from "rxjs";
 import clamp from "lodash-es/clamp";
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "src/constants";
+import { MAP_WIDTH, MAP_HEIGHT } from "src/constants";
 import { fitInRect } from "src/utils";
 
 import type { MouseCoordinates } from "src/reactiveUtils";
@@ -27,8 +27,8 @@ export type FocusArea = {
   height: number;
 };
 const INITIAL = {
-  width: (CANVAS_WIDTH * INITIAL_ZOOM) / 100,
-  height: (CANVAS_HEIGHT * INITIAL_ZOOM) / 100,
+  width: (MAP_WIDTH * INITIAL_ZOOM) / 100,
+  height: (MAP_HEIGHT * INITIAL_ZOOM) / 100,
   coordinates: { x: 0, y: 0 },
 };
 
@@ -42,7 +42,7 @@ function fitFocusArea(area): FocusArea {
     ...area,
     ...fitInRect(
       { width: area.width, height: area.height },
-      { width: CANVAS_WIDTH, height: CANVAS_HEIGHT }
+      { width: MAP_WIDTH, height: MAP_HEIGHT }
     ),
   };
 }
@@ -50,8 +50,8 @@ function fitCoordinates(area): FocusArea {
   return {
     ...area,
     coordinates: {
-      x: clamp(area.coordinates.x, 0, CANVAS_WIDTH - area.width),
-      y: clamp(area.coordinates.y, 0, CANVAS_HEIGHT - area.height),
+      x: clamp(area.coordinates.x, 0, MAP_WIDTH - area.width),
+      y: clamp(area.coordinates.y, 0, MAP_HEIGHT - area.height),
     },
   };
 }
@@ -80,7 +80,7 @@ const focusArea$ = createStore(INITIAL)
   )
   .on(zoom$, (area, zoom) => {
     const ratio = area.height / area.width;
-    const nextWidth = (CANVAS_WIDTH * zoom) / 100;
+    const nextWidth = (MAP_WIDTH * zoom) / 100;
     const nextHeight = nextWidth * ratio;
     const deltaX = area.width - nextWidth;
     const deltaY = area.height - nextHeight;
@@ -95,7 +95,7 @@ const focusArea$ = createStore(INITIAL)
     });
   })
   .on(changeRatio, (area, ratio) => {
-    const nextWidth = (CANVAS_WIDTH * zoom$.getState()) / 100;
+    const nextWidth = (MAP_WIDTH * zoom$.getState()) / 100;
 
     return mapArea({ ...area, width: nextWidth, height: nextWidth * ratio });
   });
