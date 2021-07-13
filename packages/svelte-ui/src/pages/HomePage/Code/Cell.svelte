@@ -26,7 +26,7 @@
 
 <input
   on:focus={() => dispatch("focus")}
-  on:input={() => dispatch("change")}
+  on:input={(e) => dispatch("change", e.target.value)}
   bind:value
   bind:this={input}
   class="cell"
@@ -46,5 +46,10 @@
     font-size: 40px;
     text-align: center;
     outline: none;
+    caret-color: transparent;
+  }
+
+  .cell:focus {
+    box-shadow: 0px 0px 20px rgb(253 52 110 / 30%);
   }
 </style>

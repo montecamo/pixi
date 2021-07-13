@@ -2,8 +2,8 @@
   import Cell from "./Cell.svelte";
   import range from "lodash-es/range";
 
-  export let length;
-  export let value;
+  export let length: number;
+  export let value: string;
 
   let values = [];
   let current = 0;
@@ -11,10 +11,14 @@
 
   $: value = values.join("");
 
-  const handleChange = () => {
-    const next = (current + 1) % length;
+  const handleChange = ({ detail: value }) => {
+    values[current] = value.slice(-1);
 
-    if (values[next] === undefined || values[next] === "") {
+    if (!values[current]) return;
+
+    const next = current + 1;
+
+    if (next < length) {
       cells[next].focus();
     } else {
       cells[current].blur();

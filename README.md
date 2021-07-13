@@ -22,7 +22,7 @@
 - [ ] Make api return promises
 - [ ] Add phone gyroscope drawing
 - [ ] Refactor contexts to typed
-- [ ] Fix code input bugs
+- [x] Fix code input bugs
 - [x] Think about storing all fibers on client
 - [ ] Consider fuzzy rendering when too many fibers
 - [ ] Add chat
