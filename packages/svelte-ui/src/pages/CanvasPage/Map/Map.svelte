@@ -11,6 +11,7 @@
   import {
     makeMouseWheelDelta$,
     makeMouseMoveCoordinates$,
+    stopDefaults$,
   } from "src/reactiveUtils";
 
   export let canvas: HTMLCanvasElement = null;
@@ -28,6 +29,7 @@
   onMount(() => {
     const subscription = fromMousePressedMove$(canvas)
       .pipe(
+        stopDefaults$(),
         map(({ offsetX, offsetY }) => ({
           x: offsetX / MAP_SCALE,
           y: offsetY / MAP_SCALE,
@@ -89,6 +91,7 @@
     height: 100%;
     position: relative;
     overflow: auto;
+    background: var(--background-color);
   }
 
   .focus-area {

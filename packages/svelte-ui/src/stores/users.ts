@@ -11,8 +11,8 @@ function makeUser(id: string, position: { top: number; left: number }): User {
 }
 
 const users$ = createStore([]);
-const addUser = createEvent();
-const deleteUser = createEvent();
+const addUser = createEvent<User>();
+const deleteUser = createEvent<string>();
 
 users$
   .on(addUser, (state, user) => state.concat(user))

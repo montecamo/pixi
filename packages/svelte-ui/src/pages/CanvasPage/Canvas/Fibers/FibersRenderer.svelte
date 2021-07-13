@@ -1,0 +1,66 @@
+<script lang="ts">
+  import { Subject, merge } from "rxjs";
+  import { map, tap } from "rxjs/operators";
+  import { fibers$, getFibers } from "src/stores/fibers/fibers";
+  import type { Fibers } from "src/stores/fibers";
+
+  import {
+    moveFiber,
+    renderFiber,
+    scaleFiberCoordinates,
+  } from "src/stores/fibers";
+  import { focusAreaObservable$, changeRatio } from "src/stores/focusArea";
+
+  import { makeElementRatio$ } from "src/reactiveUtils";
+  import { onMount } from "svelte";
+
+  let canvas: HTMLCanvasElement;
+  $: ctx = canvas?.getContext("2d");
+
+  export let scale: number;
+  export let offsetX: number;
+  export let offsetY: number;
+
+  let width: number;
+  let height: number;
+
+  const manual$ = new Subject<Fibers>();
+
+  focusAreaObservable$.subscribe(({ width, height, coordinates }) => {
+    manual$.next(getFibers(coordinates.x, coordinates.y, width, height));
+  });
+
+  onMount(() => {
+    const subscription = makeElementRatio$(canvas).subscribe(changeRatio);
+
+    return () => subscription.unsubscribe();
+  });
+
+  $: data$ = merge(
+    fibers$,
+    manual$.pipe(
+      tap(() => {
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
+      })
+    )
+  ).pipe(
+    map((fibers) => {
+      return fibers.map((f) =>
+        scaleFiberCoordinates(moveFiber(f, -offsetX, -offsetY), 1 / scale)
+      );
+    })
+  );
+
+  $: $data$.forEach((f) => {
+    renderFiber(ctx, f);
+  });
+</script>
+
+<svelte:window bind:innerWidth={width} bind:innerHeight={height} />
+<canvas bind:this={canvas} class="canvas" {width} {height} />
+
+<style scoped>
+  .canvas {
+    background: var(--background-color);
+  }
+</style>
