@@ -4,11 +4,7 @@
   import { fibers$, getFibers } from "src/stores/fibers/fibers";
   import type { Fibers } from "src/stores/fibers";
 
-  import {
-    moveFiber,
-    renderFiber,
-    scaleFiberCoordinates,
-  } from "src/stores/fibers";
+  import { moveFiber, renderFiber, scaleFiber } from "src/stores/fibers";
   import { focusArea$, changeRatio } from "src/stores/focusArea";
 
   import { makeElementRatio$ } from "src/reactiveUtils";
@@ -24,9 +20,9 @@
   let width: number;
   let height: number;
 
-  const manual$ = new Subject<Fibers>();
+  const allFibers$ = new Subject<Fibers>();
 
-  $: manual$.next(
+  $: allFibers$.next(
     getFibers(
       $focusArea$.coordinates.x,
       $focusArea$.coordinates.y,
@@ -43,7 +39,7 @@
 
   $: data$ = merge(
     fibers$,
-    manual$.pipe(
+    allFibers$.pipe(
       tap(() => {
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
       })
@@ -51,7 +47,7 @@
   ).pipe(
     map((fibers) => {
       return fibers.map((f) =>
-        scaleFiberCoordinates(moveFiber(f, -offsetX, -offsetY), 1 / scale)
+        scaleFiber(moveFiber(f, -offsetX, -offsetY), 1 / scale)
       );
     })
   );
