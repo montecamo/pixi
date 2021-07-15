@@ -17,7 +17,7 @@ export type Api = {
 };
 
 export function makeApi(): Api {
-  const socket = io("ws://localhost:3001");
+  const socket = io("wss://pixi.montecamo.dev");
   const fibers$ = new Subject<Fibers>();
   const users$ = new Subject<User>();
   const usersDisconnected$ = new Subject<string>();
