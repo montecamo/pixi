@@ -8,7 +8,7 @@ const updateBrushColor = createEvent<string>();
 
 const INITIAL = {
   color: COLORS[0],
-  size: 24,
+  size: 12,
 };
 
 const brush$ = createStore(INITIAL)
