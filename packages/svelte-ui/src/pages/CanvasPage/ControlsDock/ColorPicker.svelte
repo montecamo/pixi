@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { COLORS } from "src/constants";
+  import { COLORS, BACKGROUND_COLOR } from "src/constants";
   import { createEventDispatcher } from "svelte";
 
   export let value: string;
@@ -16,6 +16,7 @@
     >
       <div
         class:active={color === value}
+        class:outlined={color === BACKGROUND_COLOR}
         class="color"
         style="background: {color}"
       />
@@ -42,6 +43,10 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
+  }
+
+  .color.outlined {
+    box-shadow: inset 0 0 0 1px #a7a0a8;
   }
 
   .color-wrapper:not(.active):hover {
