@@ -17,7 +17,7 @@
 - [x] Beautify controls
 - [x] Fix rx unsubscribe on mount
 - [ ] Consider using WebRTC
-- [ ] Support HighDPI
+- [x] Support HighDPI
 - [ ] Add react, svelte and angular uis
 - [ ] Make api return promises
 - [ ] Add phone gyroscope drawing

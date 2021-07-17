@@ -11,6 +11,7 @@
   import { onMount } from "svelte";
 
   let canvas: HTMLCanvasElement;
+  const pixelRatio = window.devicePixelRatio;
   $: ctx = canvas?.getContext("2d");
 
   export let scale: number;
@@ -30,6 +31,10 @@
       $focusArea$.height
     )
   );
+
+  onMount(() => {
+    canvas.getContext("2d").scale(pixelRatio, pixelRatio);
+  });
 
   onMount(() => {
     const subscription = makeElementRatio$(canvas).subscribe(changeRatio);
@@ -58,7 +63,12 @@
 </script>
 
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />
-<canvas bind:this={canvas} class="canvas" {width} {height} />
+<canvas
+  bind:this={canvas}
+  class="canvas"
+  width={width * pixelRatio}
+  height={height * pixelRatio}
+/>
 
 <style scoped>
   .canvas {
