@@ -11,42 +11,52 @@
   const dispatch = createEventDispatcher();
 
   const handleWheel = (e: WheelEvent) => {
-    const newValue = Math.round(clamp(value - e.deltaY * step, min, max));
+    e.preventDefault();
+    const delta = e.deltaY * 0.5;
+
+    const newValue = Math.round(clamp(value - delta * step, min, max));
 
     dispatch("change", newValue);
   };
 </script>
 
-<div class="control" on:wheel|preventDefault={handleWheel}>
-  <div class="title">{title}</div>
-  <div class="value">{value}</div>
-  <input
-    class="slider"
-    type="range"
-    {min}
-    {max}
-    {step}
-    {value}
-    on:input={(e) => dispatch("change", e.target.value)}
-  />
+<div class="wrapper">
+  <div class="control" on:wheel|preventDefault={handleWheel}>
+    <div class="title">{title}</div>
+    <div class="value">{value}</div>
+    <input
+      class="slider"
+      type="range"
+      {min}
+      {max}
+      {step}
+      {value}
+      on:input={(e) => dispatch("change", e.target.value)}
+    />
+    <div class="slider-line" />
+  </div>
 </div>
 
 <style>
-  .control {
-    flex: 1;
+  .wrapper {
+    padding: 0 var(--control-padding);
     display: flex;
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    padding: var(--control-padding);
-    height: var(--control-height);
-    border-top: var(--control-border);
-    cursor: pointer;
+    flex-grow: 1;
+  }
+  .wrapper:hover {
+    background: var(--control-hover-background);
   }
 
-  .control:hover {
-    background: var(--control-hover-background);
+  .control {
+    --slider-thumb-size: 12px;
+    --slider-line-height: 4px;
+    padding: var(--control-padding) 0;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    position: relative;
+
+    align-items: flex-start;
   }
 
   .title,
@@ -67,28 +77,53 @@
 
   .slider {
     -webkit-appearance: none;
-    width: 100%;
-    height: 4px;
-    background: var(--color-background-grey);
+    margin: 0;
+    cursor: pointer;
     outline: none;
+    background: transparent;
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  .slider-line {
     margin-top: auto;
+    background: var(--color-background-grey);
+    height: var(--slider-line-height);
+    width: 100%;
   }
 
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    transform: translateY(
+      calc(
+        var(--control-height) / 2 - var(--slider-thumb-size) / 2 -
+          var(--slider-line-height)
+      )
+    );
     appearance: none;
-    width: 12px;
-    height: 12px;
-    background: var(--color-grey);
+    width: var(--slider-thumb-size);
+    height: var(--slider-thumb-size);
+    background: var(--color-primary);
     border-radius: 4px;
     cursor: pointer;
   }
 
   .slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
+    appearance: none;
+    transform: translateY(
+      calc(
+        var(--control-height) / 2 - var(--slider-thumb-size) / 2 -
+          var(--slider-line-height)
+      )
+    );
+    width: var(--slider-thumb-size);
+    height: var(--slider-thumb-size);
+    background: var(--color-primary);
     border-radius: 4px;
-    background: var(--color-grey);
     cursor: pointer;
   }
 </style>

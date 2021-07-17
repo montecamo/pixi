@@ -10,11 +10,16 @@
 <div class="colors">
   {#each COLORS as color}
     <div
-      class="color"
+      class="color-wrapper"
       class:active={color === value}
       on:click={() => dispatch("change", color)}
-      style="background: {color}"
-    />
+    >
+      <div
+        class:active={color === value}
+        class="color"
+        style="background: {color}"
+      />
+    </div>
   {/each}
 </div>
 
@@ -26,20 +31,20 @@
     justify-content: space-around;
 
     padding: var(--control-padding) calc(var(--control-padding) / 2);
-    height: var(--control-height);
-    border-top: var(--control-border);
     cursor: pointer;
   }
 
-  .color {
-    margin: 0 calc(var(--control-padding) / 2);
+  .color-wrapper {
+    padding: calc(var(--control-padding) / 2);
+  }
 
+  .color {
     width: 36px;
     height: 36px;
     border-radius: 50%;
   }
 
-  .color:not(.active):hover {
+  .color-wrapper:not(.active):hover {
     opacity: 0.6;
   }
 

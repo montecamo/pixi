@@ -22,6 +22,11 @@
 
 <style>
   .container {
+    --control-padding: 8px;
+    --control-height: 80px;
+    --control-border: 1px solid var(--color-background-grey);
+    --control-hover-background: rgba(243, 244, 246, 0.1);
+
     position: absolute;
     bottom: 0;
     right: 0;
@@ -29,10 +34,9 @@
 
     display: flex;
 
-    --control-padding: 8px;
-    --control-height: 60px;
-    --control-border: 1px solid var(--color-background-grey);
-    --control-hover-background: rgba(243, 244, 246, 0.1);
+    max-height: var(--control-height);
+    border-top: var(--control-border);
+    height: 100%;
   }
 
   .spacer {
