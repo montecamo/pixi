@@ -2,6 +2,7 @@
   import Button from "src/components/Button.svelte";
   import type { Api } from "src/api";
   import { getContext, onMount } from "svelte";
+  import { layout$ } from "src/stores/layout";
   import { navigate } from "svelte-routing";
   import Code from "./Code";
 
@@ -33,7 +34,7 @@
   });
 </script>
 
-<div class="container">
+<div class="container" class:mobile={$layout$ === "mobile"}>
   <div class="left">
     <div class="top">
       <div class="logo">Pixi</div>
@@ -54,9 +55,11 @@
     <div class="title-text or">Or</div>
     <Button on:click={handleCreate} intent="secondary">Join random</Button>
   </div>
-  <div class="right">
-    <img alt="logo" class="image" src="../../public/painting.webp" />
-  </div>
+  {#if $layout$ === "desktop"}
+    <div class="right">
+      <img alt="logo" class="image" src="../../public/painting.webp" />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -76,6 +79,10 @@
   .left {
     width: 50%;
     padding: 80px;
+  }
+
+  .container.mobile .left {
+    width: 100%;
   }
 
   .right {
