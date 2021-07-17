@@ -26,12 +26,13 @@
   @import "./variables.css";
 
   :global(#root) {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    height: 100%;
+  }
+
+  :global(html *) {
+    font-family: var(--font-family-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    height: 100%;
   }
 
   :global(html),

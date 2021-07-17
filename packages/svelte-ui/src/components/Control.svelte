@@ -52,9 +52,9 @@
   .title,
   .value {
     line-height: 21px;
-    font-size: 14px;
-    font-family: Nunito, sans-serif;
-    color: #fff;
+    font-size: var(--font-size-x-small);
+    font-family: var(--font-family-secondary);
+    color: var(--color-light);
   }
 
   .title {
@@ -62,14 +62,14 @@
   }
 
   .value {
-    color: var(--grey-color);
+    color: var(--color-grey);
   }
 
   .slider {
     -webkit-appearance: none;
     width: 100%;
     height: 4px;
-    background: var(--background-color-grey);
+    background: var(--color-background-grey);
     outline: none;
     margin-top: auto;
   }
@@ -79,7 +79,7 @@
     appearance: none;
     width: 12px;
     height: 12px;
-    background: var(--grey-color);
+    background: var(--color-grey);
     border-radius: 4px;
     cursor: pointer;
   }
@@ -88,7 +88,7 @@
     width: 12px;
     height: 12px;
     border-radius: 4px;
-    background: var(--grey-color);
+    background: var(--color-grey);
     cursor: pointer;
   }
 </style>

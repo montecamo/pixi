@@ -29,32 +29,31 @@
     cursor: pointer;
     border-radius: 30px;
     border: 0;
-    color: #fff;
+    color: var(--color-light);
 
     padding: 15px 40px;
-    font-family: Quicksand;
-    font-size: 16px;
-    transition: box-shadow 150ms;
+    font-size: var(--font-size-small);
+    transition: box-shadow var(--animation-fast);
     outline: none;
   }
 
   .button.primary:hover,
   .button.primary:focus {
-    box-shadow: 0 0 4px 2px var(--primary-color);
+    box-shadow: var(--shadow-focused) var(--color-primary);
   }
 
   .button.secondary:hover,
   .button.secondary:focus {
-    box-shadow: 0 0 4px 1px var(--secondary-color);
+    box-shadow: var(--shadow-focused) var(--color-secondary);
   }
 
   .primary {
-    background: var(--primary-color);
-    box-shadow: -15px 20px 40px rgba(253, 52, 110, 0.3);
+    background: var(--color-primary);
+    box-shadow: var(--shadow-default) rgba(var(--color-primary), 0.3);
   }
 
   .secondary {
-    background: var(--secondary-color);
-    box-shadow: -15px 20px 40px rgba(96, 1, 211, 0.3);
+    background: var(--color-secondary);
+    box-shadow: var(--shadow-default) rgba(var(--color-secondary), 0.3);
   }
 </style>

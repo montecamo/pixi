@@ -83,16 +83,16 @@
   }
 
   .canvas {
-    border: 1px solid #fff;
+    border: 1px solid var(--color-light);
     width: 100%;
     height: 100%;
     position: relative;
     overflow: auto;
-    background: var(--background-color);
+    background: var(--color-background);
   }
 
   .focus-area {
-    border: 1px solid var(--primary-color);
+    border: 1px solid var(--color-primary);
     position: absolute;
     pointer-events: none;
   }

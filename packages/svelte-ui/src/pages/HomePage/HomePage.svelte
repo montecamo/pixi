@@ -55,7 +55,7 @@
     <Button on:click={handleCreate} intent="secondary">Join random</Button>
   </div>
   <div class="right">
-    <img alt="logo" class="image" src="../../public/convert.webp" />
+    <img alt="logo" class="image" src="../../public/painting.webp" />
   </div>
 </div>
 
@@ -63,7 +63,7 @@
   .container {
     display: flex;
     height: 100%;
-    background: var(--background-color);
+    background: var(--color-background);
   }
 
   .top {
@@ -94,11 +94,10 @@
   }
 
   .logo {
-    font-family: Quicksand;
     font-weight: bold;
-    font-size: 20px;
+    font-size: var(--font-size-medium);
     line-height: 25px;
-    color: var(--primary-color);
+    color: var(--color-primary);
   }
 
   .title {
@@ -106,11 +105,11 @@
   }
 
   .title-text {
-    font-family: Nunito;
     font-weight: bold;
-    font-size: 60px;
+    font-size: var(--font-size-x-large);
+    font-family: var(--font-family-secondary);
     line-height: 75px;
-    color: #fff;
+    color: var(--color-light);
   }
 
   .code {
@@ -123,11 +122,11 @@
   }
 
   .code-title {
-    font-family: Quicksand;
+    font-family: var(--font-family-primary);
     font-weight: 500;
-    font-size: 16px;
+    font-size: var(--font-size-small);
     line-height: 25px;
-    color: #abafc7;
+    color: var(--color-grey);
     margin-bottom: 22px;
   }
 

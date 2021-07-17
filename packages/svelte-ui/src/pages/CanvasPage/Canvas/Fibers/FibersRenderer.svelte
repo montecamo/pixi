@@ -62,6 +62,6 @@
 
 <style scoped>
   .canvas {
-    background: var(--background-color);
+    background: var(--color-background);
   }
 </style>

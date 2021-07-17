@@ -49,21 +49,21 @@
     width: 80px;
     height: 80px;
 
-    background: #192431;
+    background: var(--color-background-grey);
     border-radius: 20px;
     border: 0;
-    font-family: Nunito, sans-serif;
 
     color: white;
-    font-size: 40px;
+    font-size: var(--font-size-large);
+    font-family: var(--font-family-secondary);
     text-align: center;
     outline: none;
     caret-color: transparent;
 
-    transition: box-shadow 150ms;
+    transition: box-shadow var(--animation-fast);
   }
 
   .cell:focus {
-    box-shadow: 0 0 4px 2px var(--secondary-color);
+    box-shadow: 0 0 4px 2px var(--color-secondary);
   }
 </style>

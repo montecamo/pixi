@@ -31,13 +31,13 @@
 
     --control-padding: 8px;
     --control-height: 60px;
-    --control-border: 1px solid var(--background-color-grey);
+    --control-border: 1px solid var(--color-background-grey);
     --control-hover-background: rgba(243, 244, 246, 0.1);
   }
 
   .spacer {
     max-width: 1px;
     flex: 1;
-    background: var(--background-color-grey);
+    background: var(--color-background-grey);
   }
 </style>

@@ -1,11 +1,13 @@
 import { createStore, createEvent } from "effector";
 import { BehaviorSubject } from "rxjs";
 
+import { COLORS } from "src/constants";
+
 const updateBrushSize = createEvent<number>();
 const updateBrushColor = createEvent<string>();
 
 const INITIAL = {
-  color: "#fff",
+  color: COLORS[0],
   size: 24,
 };
 

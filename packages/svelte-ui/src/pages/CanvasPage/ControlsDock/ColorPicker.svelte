@@ -1,18 +1,10 @@
 <script lang="ts">
+  import { COLORS } from "src/constants";
   import { createEventDispatcher } from "svelte";
 
   export let value: string;
 
   const dispatch = createEventDispatcher();
-
-  const COLORS = [
-    "#FCDC00",
-    "#0CD68A",
-    "#FF895B",
-    "#0F89FF",
-    "#6001D3",
-    "#FD346E",
-  ];
 </script>
 
 <div class="colors">
