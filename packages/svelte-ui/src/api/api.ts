@@ -4,6 +4,11 @@ import io from "socket.io-client";
 import type { User } from "src/stores/users";
 import type { Fibers } from "src/stores/fibers";
 
+// @ts-ignore
+const SOCKET_URL = import.meta.env.DEV
+  ? "ws://localhost:3001"
+  : "wss://pixi.montecamo.dev";
+
 export type Api = {
   joinRoom: (id: string) => void;
   getFibers: () => void;
@@ -17,7 +22,7 @@ export type Api = {
 };
 
 export function makeApi(): Api {
-  const socket = io("wss://pixi.montecamo.dev");
+  const socket = io(SOCKET_URL);
   const fibers$ = new Subject<Fibers>();
   const users$ = new Subject<User>();
   const usersDisconnected$ = new Subject<string>();
