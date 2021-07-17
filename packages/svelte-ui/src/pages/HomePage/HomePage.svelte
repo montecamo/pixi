@@ -47,7 +47,7 @@
     <Button on:click={handleCreate} intent="secondary">Join random</Button>
   </div>
   <div class="right">
-    <img alt="logo" class="image" src="../../public/painting.jpg" />
+    <img alt="logo" class="image" src="../../public/convert.webp" />
   </div>
 </div>
 
@@ -71,12 +71,14 @@
   }
 
   .right {
+    padding-left: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .left {
+    padding-right: 40px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;

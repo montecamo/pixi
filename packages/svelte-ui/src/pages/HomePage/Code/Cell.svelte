@@ -47,9 +47,11 @@
     text-align: center;
     outline: none;
     caret-color: transparent;
+
+    transition: box-shadow 150ms;
   }
 
   .cell:focus {
-    box-shadow: 0px 0px 20px rgb(253 52 110 / 30%);
+    box-shadow: 0 0 4px 2px var(--secondary-color);
   }
 </style>

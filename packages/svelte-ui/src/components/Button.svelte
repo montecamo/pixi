@@ -24,15 +24,27 @@
     padding: 15px 40px;
     font-family: Quicksand;
     font-size: 16px;
+    transition: box-shadow 150ms;
+    outline: none;
+  }
+
+  .button.primary:hover,
+  .button.primary:focus {
+    box-shadow: 0 0 4px 2px var(--primary-color);
+  }
+
+  .button.secondary:hover,
+  .button.secondary:focus {
+    box-shadow: 0 0 4px 1px var(--secondary-color);
   }
 
   .primary {
     background: var(--primary-color);
-    box-shadow: -15px 20px 40px rgba(253, 52, 110, 0.301961);
+    box-shadow: -15px 20px 40px rgba(253, 52, 110, 0.3);
   }
 
   .secondary {
     background: var(--secondary-color);
-    box-shadow: -15px 20px 40px rgba(96, 1, 211, 0.301961);
+    box-shadow: -15px 20px 40px rgba(96, 1, 211, 0.3);
   }
 </style>
