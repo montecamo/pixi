@@ -15,11 +15,7 @@
 
   $: value = values.join("");
 
-  const handleChange = ({ detail: value }) => {
-    values[current] = value.slice(-1);
-
-    if (!values[current]) return;
-
+  const handleChange = () => {
     const next = current + 1;
 
     if (next < length) {
