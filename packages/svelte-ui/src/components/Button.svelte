@@ -5,12 +5,22 @@
   export let clazz: string = "";
   export { clazz as class };
 
+  let button: HTMLButtonElement;
+
+  export function focus() {
+    button.focus();
+  }
+
   const dispatch = createEventDispatcher();
 
   const handleClick = () => dispatch("click");
 </script>
 
-<button on:click={handleClick} class={`button ${intent} ${clazz}`}>
+<button
+  bind:this={button}
+  on:click={handleClick}
+  class={`button ${intent} ${clazz}`}
+>
   <slot />
 </button>
 

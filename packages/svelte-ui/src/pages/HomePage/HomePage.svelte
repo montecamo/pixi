@@ -16,6 +16,12 @@
     api.createRoom();
   };
 
+  let joinButton;
+
+  function handleCodeReady() {
+    joinButton.focus();
+  }
+
   onMount(() => {
     const subscription = api.roomCreated$.subscribe((id) => {
       navigate(`/${id}`);
@@ -39,9 +45,11 @@
     <div class="code">
       <div class="code-title">Enter your room code</div>
       <div class="code-wrapper">
-        <Code bind:value={code} length={4} />
+        <Code on:ready={handleCodeReady} bind:value={code} length={4} />
       </div>
-      <Button on:click={handleJoin} intent="primary">Join room</Button>
+      <Button bind:this={joinButton} on:click={handleJoin} intent="primary"
+        >Join room</Button
+      >
     </div>
     <div class="title-text or">Or</div>
     <Button on:click={handleCreate} intent="secondary">Join random</Button>

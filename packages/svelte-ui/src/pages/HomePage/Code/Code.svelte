@@ -1,6 +1,8 @@
 <script lang="ts">
-  import Cell from "./Cell.svelte";
+  import { createEventDispatcher } from "svelte";
   import range from "lodash-es/range";
+
+  import Cell from "./Cell.svelte";
 
   export let length: number;
   export let value: string;
@@ -8,6 +10,8 @@
   let values = [];
   let current = 0;
   const cells = [];
+
+  const dispatch = createEventDispatcher();
 
   $: value = values.join("");
 
@@ -22,6 +26,7 @@
       cells[next].focus();
     } else {
       cells[current].blur();
+      dispatch("ready");
     }
   };
 </script>
