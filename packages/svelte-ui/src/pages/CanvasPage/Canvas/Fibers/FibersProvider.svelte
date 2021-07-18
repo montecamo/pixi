@@ -7,7 +7,7 @@
   import { brushObservable$ } from "src/stores/brush";
 
   const api = getContext<Api>("api");
-  let container;
+  export let container: HTMLElement;
 
   import {
     makeFiber,
@@ -40,15 +40,3 @@
   $: api.draw($fibers$);
   $: addFibers($apiFibers$);
 </script>
-
-<div bind:this={container} class="container" />
-
-<style>
-  .container {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    top: 0;
-  }
-</style>

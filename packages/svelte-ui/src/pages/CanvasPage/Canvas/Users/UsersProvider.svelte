@@ -10,12 +10,11 @@
   export let scale: number;
   export let offsetX: number;
   export let offsetY: number;
+  export let container: HTMLElement;
 
   const { updateUser, usersDisconnected$, users$ } = getContext<Api>("api");
 
-  const coordinates$ = makeMouseMoveCoordinates$(
-    document as unknown as HTMLElement
-  );
+  const coordinates$ = makeMouseMoveCoordinates$(container);
 
   $: updateUser(
     makeUser("", {

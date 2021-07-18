@@ -4,7 +4,7 @@
   import { brush$, updateBrushColor, updateBrushSize } from "src/stores/brush";
 </script>
 
-<div class="container">
+<div class="container" on:mousemove|stopPropagation>
   <Control
     title="SIZE"
     min={0}

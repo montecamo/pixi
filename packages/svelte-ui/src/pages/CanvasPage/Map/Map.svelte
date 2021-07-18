@@ -11,7 +11,6 @@
   import {
     makeMouseWheelDelta$,
     makeMouseMoveCoordinates$,
-    stopDefaults$,
   } from "src/reactiveUtils";
 
   export let canvas: HTMLCanvasElement = null;
@@ -24,9 +23,8 @@
   });
 
   onMount(() => {
-    const subsscription = fromMousePressedMove$(canvas)
+    const subscription = fromMousePressedMove$(canvas)
       .pipe(
-        stopDefaults$(),
         map(({ offsetX, offsetY }) => ({
           x: offsetX / MAP_SCALE,
           y: offsetY / MAP_SCALE,
@@ -34,7 +32,7 @@
       )
       .subscribe(moveArea);
 
-    return () => subsscription.unsubscribe();
+    return () => subscription.unsubscribe();
   });
 
   onMount(() => {
@@ -80,6 +78,7 @@
     position: fixed;
     top: 32px;
     right: 32px;
+    cursor: pointer;
   }
 
   .canvas {
