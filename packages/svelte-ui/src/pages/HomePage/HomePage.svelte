@@ -57,7 +57,7 @@
   </div>
   {#if $layout$ === "desktop"}
     <div class="right">
-      <img alt="logo" class="image" src="../../public/painting.webp" />
+      <img alt="logo" class="image" src="painting.webp" />
     </div>
   {/if}
 </div>
