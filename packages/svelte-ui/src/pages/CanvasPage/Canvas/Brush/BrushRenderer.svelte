@@ -1,27 +1,29 @@
 <script lang="ts">
   import { brush$ } from "src/stores/brush";
-  import { BACKGROUND_COLOR } from "src/constants";
+  import { scaleFiberCoordinates } from "src/stores/fibers";
 
   export let scale: number = 1;
 </script>
 
-<div
-  class="brush-wrapper"
-  style="
+{#if $brush$.coordinates.x > 0 && $brush$.coordinates.y > 0}
+  <div
+    class="brush-wrapper"
+    style="
     width: {$brush$.size * scale - 4}px;
     height: {$brush$.size * scale - 4}px;
     left: {$brush$.coordinates.x}px;
     top: {$brush$.coordinates.y}px;
   "
->
-  <div
-    class="brush"
-    style="
+  >
+    <div
+      class="brush"
+      style="
       background-color: {$brush$.color};
       opacity: {$brush$.opacity / 100};
     "
-  />
-</div>
+    />
+  </div>
+{/if}
 
 <style scoped>
   .brush-wrapper {
