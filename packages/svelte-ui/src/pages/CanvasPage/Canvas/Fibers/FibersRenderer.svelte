@@ -10,6 +10,8 @@
   import { makeElementRatio$ } from "src/reactiveUtils";
   import { onMount } from "svelte";
 
+  const OFFSET = 64;
+
   let canvas: HTMLCanvasElement;
   const pixelRatio = window.devicePixelRatio;
   $: ctx = canvas?.getContext("2d");
@@ -25,10 +27,10 @@
 
   $: allFibers$.next(
     getFibers(
-      $focusArea$.coordinates.x,
-      $focusArea$.coordinates.y,
-      $focusArea$.width,
-      $focusArea$.height
+      $focusArea$.coordinates.x - OFFSET,
+      $focusArea$.coordinates.y - OFFSET,
+      $focusArea$.width + OFFSET,
+      $focusArea$.height + OFFSET
     )
   );
 
