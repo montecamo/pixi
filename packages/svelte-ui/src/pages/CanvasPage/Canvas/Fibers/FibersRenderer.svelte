@@ -73,6 +73,6 @@
 <style scoped>
   .canvas {
     background: var(--color-background);
-    cursor: none;
+    pointer-events: none;
   }
 </style>

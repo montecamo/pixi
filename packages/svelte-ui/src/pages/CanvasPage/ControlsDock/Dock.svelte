@@ -1,7 +1,12 @@
 <script lang="ts">
   import Control from "src/components/Control.svelte";
   import ColorPicker from "./ColorPicker.svelte";
-  import { brush$, updateBrushColor, updateBrushSize } from "src/stores/brush";
+  import {
+    brush$,
+    updateBrushColor,
+    updateBrushOpacity,
+    updateBrushSize,
+  } from "src/stores/brush";
 </script>
 
 <div class="container" on:mousemove|stopPropagation>
@@ -12,6 +17,15 @@
     step={1}
     on:change={(e) => updateBrushSize(e.detail)}
     value={$brush$.size}
+  />
+  <div class="spacer" />
+  <Control
+    title="OPACITY"
+    min={2}
+    max={100}
+    step={1}
+    on:change={(e) => updateBrushOpacity(e.detail)}
+    value={$brush$.opacity}
   />
   <div class="spacer" />
   <ColorPicker

@@ -9,6 +9,7 @@ export type Fiber = {
   toY: number;
   color: string;
   size: number;
+  opacity: number;
 };
 export type Fibers = Fiber[];
 

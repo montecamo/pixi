@@ -6,6 +6,7 @@
   import type { User } from "src/stores/users";
 
   import { makeMouseMoveCoordinates$ } from "src/reactiveUtils";
+  import { of } from "rxjs";
 
   export let scale: number;
   export let offsetX: number;
@@ -14,7 +15,9 @@
 
   const { updateUser, usersDisconnected$, users$ } = getContext<Api>("api");
 
-  const coordinates$ = makeMouseMoveCoordinates$(container);
+  const coordinates$ = container
+    ? makeMouseMoveCoordinates$(container)
+    : of({ x: 0, y: 0 });
 
   $: updateUser(
     makeUser("", {

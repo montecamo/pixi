@@ -6,22 +6,35 @@
 </script>
 
 <div
-  class="brush"
+  class="brush-wrapper"
   style="
-    background-color: {$brush$.color};
-    width: {$brush$.size * scale}px;
-    height: {$brush$.size * scale}px;
+    width: {$brush$.size * scale - 4}px;
+    height: {$brush$.size * scale - 4}px;
     left: {$brush$.coordinates.x}px;
     top: {$brush$.coordinates.y}px;
   "
-/>
+>
+  <div
+    class="brush"
+    style="
+      background-color: {$brush$.color};
+      opacity: {$brush$.opacity / 100};
+    "
+  />
+</div>
 
 <style scoped>
-  .brush {
-    border-radius: 50%;
+  .brush-wrapper {
     position: absolute;
 
     transform: translate(-50%, -50%);
-    box-shadow: inset 0 0 0 2px #a7a0a8;
+    border: 2px solid #a7a0a8;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .brush {
+    width: 100%;
+    height: 100%;
   }
 </style>

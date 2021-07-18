@@ -25,8 +25,8 @@
 
   $: fibers$ = moveVector$.pipe(
     withLatestFrom(brushObservable$),
-    map(([{ fromX, fromY, toX, toY }, { color, size }]) => {
-      return [makeFiber(fromX, fromY, toX, toY, color, size)];
+    map(([{ fromX, fromY, toX, toY }, { color, size, opacity }]) => {
+      return [makeFiber(fromX, fromY, toX, toY, color, size, opacity)];
     }),
     map((fibers) =>
       fibers.map((f) =>
