@@ -1,5 +1,6 @@
 <script lang="ts">
   import { brush$ } from "src/stores/brush";
+  import { BACKGROUND_COLOR } from "src/constants";
 
   export let scale: number = 1;
 </script>
@@ -21,5 +22,6 @@
     position: absolute;
 
     transform: translate(-50%, -50%);
+    box-shadow: inset 0 0 0 2px #a7a0a8;
   }
 </style>
