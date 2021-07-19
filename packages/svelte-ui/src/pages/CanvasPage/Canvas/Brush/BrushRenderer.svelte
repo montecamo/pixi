@@ -33,6 +33,8 @@
     border: 2px solid #a7a0a8;
     border-radius: 50%;
     overflow: hidden;
+    pointer-events: none;
+    user-select: none;
   }
 
   .brush {
