@@ -3,7 +3,7 @@
   import type { Api } from "src/api";
   import { NEVER } from "rxjs";
   import { withLatestFrom, map, startWith } from "rxjs/operators";
-  import { addFibers } from "src/stores/fibers";
+  import { addFibers, makeFibersCoordinates } from "src/stores/fibers";
   import { brushObservable$ } from "src/stores/brush";
 
   const api = getContext<Api>("api");
@@ -15,18 +15,27 @@
     scaleFiberCoordinates,
   } from "src/stores/fibers";
 
-  import { makeMousePressedMoveVector$ } from "src/reactiveUtils";
+  import { makeMousePressedMoveVectors$ } from "src/reactiveUtils";
 
   export let scale: number;
   export let offsetX: number;
   export let offsetY: number;
-  $: moveVector$ = container ? makeMousePressedMoveVector$(container) : NEVER;
+  $: moveVectors$ = container ? makeMousePressedMoveVectors$(container) : NEVER;
   const apiFibers$ = api.fibers$.pipe(startWith([]));
 
-  $: fibers$ = moveVector$.pipe(
+  $: fibers$ = moveVectors$.pipe(
     withLatestFrom(brushObservable$),
-    map(([{ fromX, fromY, toX, toY }, { color, size, opacity }]) => {
-      return [makeFiber(fromX, fromY, toX, toY, color, size, opacity)];
+    map(([vectors, { color, size, opacity }]) => {
+      return [
+        makeFiber(
+          vectors.map(({ fromX, fromY, toX, toY }) =>
+            makeFibersCoordinates(fromX, fromY, toX, toY)
+          ),
+          color,
+          size,
+          opacity
+        ),
+      ];
     }),
     map((fibers) =>
       fibers.map((f) =>

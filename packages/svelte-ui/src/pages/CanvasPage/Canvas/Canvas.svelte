@@ -3,6 +3,7 @@
   import UsersRenderer from "./Users/UsersRenderer.svelte";
   import FibersProvider from "./Fibers/FibersProvider.svelte";
   import FibersRenderer from "./Fibers/FibersRenderer.svelte";
+  import FibersPrerenderer from "./Fibers/FibersPrerenderer.svelte";
   import BrushProvider from "./Brush/BrushProvider.svelte";
   import BrushRenderer from "./Brush/BrushRenderer.svelte";
 
@@ -32,6 +33,7 @@
 />
 <BrushProvider {container} />
 <BrushRenderer scale={$scale$} />
+<FibersPrerenderer {container} scale={$scale$} />
 
 <svelte:window bind:innerWidth={width} />
 

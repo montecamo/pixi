@@ -2,11 +2,14 @@ import { createEvent } from "effector";
 import { BehaviorSubject } from "rxjs";
 import { isInRect } from "src/utils";
 
-export type Fiber = {
+export type FibersCoordinates = {
   x: number;
   y: number;
   toX: number;
   toY: number;
+};
+export type Fiber = {
+  coordinates: FibersCoordinates[];
   color: string;
   size: number;
   opacity: number;

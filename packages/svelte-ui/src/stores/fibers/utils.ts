@@ -1,28 +1,37 @@
-import type { Fiber } from "./fibers";
+import type { Fiber, FibersCoordinates } from "./fibers";
 import { hexToRgb } from "src/utils";
 
-export function makeFiber(
+export function makeFibersCoordinates(
   x: number,
   y: number,
   toX: number,
-  toY: number,
+  toY: number
+) {
+  return {
+    x,
+    y,
+    toX,
+    toY,
+  };
+}
+export function makeFiber(
+  coordinates: FibersCoordinates[],
   color: string,
   size: number,
   opacity: number
 ): Fiber {
-  return { x, y, toX, toY, color, size, opacity };
+  return { coordinates, color, size, opacity };
 }
 
 export function moveFiber(
-  { x, y, toX, toY, color, size, opacity }: Fiber,
+  { coordinates, color, size, opacity }: Fiber,
   left: number,
   top: number
 ): Fiber {
   return makeFiber(
-    x + left,
-    y + top,
-    toX + left,
-    toY + top,
+    coordinates.map(({ x, y, toX, toY }) =>
+      makeFibersCoordinates(x + left, y + top, toX + left, toY + top)
+    ),
     color,
     size,
     opacity
@@ -30,28 +39,26 @@ export function moveFiber(
 }
 
 export function scaleFiber(
-  { x, y, toX, toY, color, size, opacity }: Fiber,
+  { coordinates, color, size, opacity }: Fiber,
   scale: number
 ): Fiber {
   return makeFiber(
-    x / scale,
-    y / scale,
-    toX / scale,
-    toY / scale,
+    coordinates.map(({ x, y, toX, toY }) =>
+      makeFibersCoordinates(x / scale, y / scale, toX / scale, toY / scale)
+    ),
     color,
     size / scale,
     opacity
   );
 }
 export function scaleFiberCoordinates(
-  { x, y, toX, toY, color, size, opacity }: Fiber,
+  { coordinates, color, size, opacity }: Fiber,
   scale: number
 ): Fiber {
   return makeFiber(
-    x / scale,
-    y / scale,
-    toX / scale,
-    toY / scale,
+    coordinates.map(({ x, y, toX, toY }) =>
+      makeFibersCoordinates(x / scale, y / scale, toX / scale, toY / scale)
+    ),
     color,
     size,
     opacity
@@ -60,7 +67,7 @@ export function scaleFiberCoordinates(
 
 export function renderFiber(
   ctx: CanvasRenderingContext2D,
-  { x, y, toX, toY, color, size, opacity }: Fiber
+  { coordinates, color, size, opacity }: Fiber
 ): void {
   const [r, g, b] = hexToRgb(color);
   ctx.lineCap = "round";
@@ -70,7 +77,11 @@ export function renderFiber(
   ctx.lineWidth = size;
 
   ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(toX, toY);
+
+  coordinates.forEach(({ x, y, toX, toY }) => {
+    ctx.moveTo(x, y);
+    ctx.lineTo(toX, toY);
+  });
+
   ctx.stroke();
 }
