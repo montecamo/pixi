@@ -1,5 +1,6 @@
 import { createEvent } from "effector";
 import { BehaviorSubject } from "rxjs";
+import { find } from "rxjs/operators";
 import { isInRect } from "src/utils";
 
 export type FibersCoordinates = {
@@ -24,10 +25,12 @@ export function getFibers(
   width: number,
   height: number
 ): Fibers {
-  return state.filter((f) => {
+  return state.filter(({ coordinates }) => {
     return (
-      isInRect(x, y, width, height, f.x, f.y) ||
-      isInRect(x, y, width, height, f.fromX, f.fromY)
+      coordinates.find(({ x, y }) => isInRect(x, y, width, height, x, y)) ||
+      coordinates.find(({ fromX, fromY }) =>
+        isInRect(x, y, width, height, fromX, fromY)
+      )
     );
   });
 }
